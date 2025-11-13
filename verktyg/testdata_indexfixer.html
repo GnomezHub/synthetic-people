@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Entitetsindex Korrigerare</title>
+    <!-- Laddar Tailwind CSS för snabb och responsiv styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Sätter "Inter" som standard typsnitt */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Se till att body fyller hela viewport-höjden */
+        }
+        main {
+            flex-grow: 1; /* Huvudinnehållet tar upp allt tillgängligt utrymme */
+        }
+        textarea {
+            min-height: 400px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        /* Egen stil för att visa felmeddelanden */
+        #errorMessage {
+            transition: opacity 0.3s ease-in-out;
+        }
+        footer {
+            margin-top: auto; /* Trycker ner footern till botten */
+        }
+    </style>
+    <script>
+        // Global variabel för att hantera felmeddelanden
+        let errorTimeout;
+
+        /**
+         * Visar ett temporärt felmeddelande i applikationen.
+         * @param {string} message - Felmeddelandet som ska visas.
+         */
+        function displayError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            clearTimeout(errorTimeout);
+            errorElement.textContent = message;
+            errorElement.classList.remove('opacity-0', 'hidden');
+            errorElement.classList.add('opacity-100');
+
+            errorTimeout = setTimeout(() => {
+                errorElement.classList.add('opacity-0');
+                setTimeout(() => errorElement.classList.add('hidden'), 300);
+            }, 5000);
+        }
+
+        /**
+         * Försöker parsa JSON-data, hanterar även fall där indata saknar omslutande array.
+         * @param {string} jsonString - Rå JSON-sträng från indatafältet.
+         * @returns {Array|null} - Parsad data som en array, eller null vid fel.
+         */
+        function parseInputJson(jsonString) {
+            let data;
+            const trimmedString = jsonString.trim();
+
+            try {
+                // Försök 1: Parsa som en array
+                data = JSON.parse(trimmedString);
+                if (!Array.isArray(data)) {
+                    throw new Error("Input is not a JSON array.");
+                }
+                return data;
+            } catch (e) {
+                // Om parsning misslyckas, försök 2: Omslut med array om det verkar vara ett enskilt objekt
+                if (trimmedString.startsWith('{') && trimmedString.endsWith('}')) {
+                    try {
+                        data = JSON.parse(`[${trimmedString}]`);
+                        if (Array.isArray(data)) {
+                            return data;
+                        }
+                    } catch (e2) {
+                        // Ignorera fel 2
+                    }
+                }
+                // Om båda misslyckas, visa fel
+                displayError("Ogiltigt JSON-format. Vänligen kontrollera syntaxen. Försökte parsa både som array och som enskilt objekt.");
+                return null;
+            }
+        }
+
+        /**
+         * Huvudfunktionen som korrigerar start- och end-indexen för alla entiteter.
+         */
+        function correctIndices() {
+            const inputElement = document.getElementById('inputJson');
+            const outputElement = document.getElementById('outputJson');
+            const statusElement = document.getElementById('statusMessage');
+            const removeBrackets = document.getElementById('removeOutputBrackets').checked;
+
+            const data = parseInputJson(inputElement.value);
+            if (!data) return; // Parsning misslyckades
+
+            let correctedCount = 0;
+            const deviationMessages = [];
+
+            // Vi använder en djupkopia av data för att ha tillgång till det ursprungliga 'start'-indexet
+            // i den ursprungliga listan (data) och samtidigt kunna mutera den kopierade listan (processData)
+            const processData = JSON.parse(JSON.stringify(data)); 
+
+            const correctedData = processData.map((record, recordIndex) => {
+                // Hämta den ursprungliga entitetslistan för att använda de ursprungliga indexen (entity.start)
+                const originalEntities = data[recordIndex].gold_entities; 
+
+                // Kontrollera att posten har 'text' och 'gold_entities'
+                if (typeof record.text !== 'string' || !Array.isArray(record.gold_entities)) {
+                    return record;
+                }
+
+                const parentText = record.text;
+
+                // Steg 1: Räkna förekomster av varje unik entitetstext i entitetslistan
+                const entityTextCounts = {};
+                record.gold_entities.forEach(entity => {
+                    const trimmedText = entity.text.trim();
+                    entityTextCounts[trimmedText] = (entityTextCounts[trimmedText] || 0) + 1;
+                });
+
+                // Steg 2: Hitta alla startindex för varje unik textsträng i modernoden
+                const parentMatches = {};
+                Object.keys(entityTextCounts).forEach(text => {
+                    parentMatches[text] = findAllIndices(parentText, text);
+                });
+                
+                // Håller reda på vilka startindex som tilldelats för varje unik textsträng i denna record
+                const assignedIndices = {};
+
+                // Steg 3: Korrigera entiteterna baserat på matchningslogiken
+                const correctedEntities = record.gold_entities
+                    .map((entity, entityIndex) => {
+                        const originalEntity = originalEntities[entityIndex]; // Används för att hämta ursprungligt index
+                        
+                        const entityId = entity.id;
+                        const recordId = record.id;
+                        const entityText = entity.text;
+                        const trimmedEntityText = entityText.trim();
+                        
+                        // Initialisera tilldelade index för denna textsträng om det behövs
+                        if (!assignedIndices[trimmedEntityText]) {
+                             assignedIndices[trimmedEntityText] = new Set();
+                        }
+
+                        // Specialfall: Tom text
+                        if (trimmedEntityText.length === 0) {
+                             deviationMessages.push({ type: 'XXX', recordId, entityId, text: trimmedEntityText, reason: 'Tom text' });
+                             return { ...entity, start: "XXX", end: "XXX" };
+                        }
+
+                        const matchIndices = parentMatches[trimmedEntityText];
+                        const expectedCount = entityTextCounts[trimmedEntityText];
+                        const actualCount = matchIndices.length;
+
+                        // Kontroll 1: Hittades texten?
+                        if (actualCount === 0) {
+                            // Saknas: Entitet tas bort
+                            deviationMessages.push({ type: 'DELETE', recordId, entityId, text: entityText, reason: 'Hittades inte' });
+                            return null;
+                        }
+
+                        // Kontroll 2: Tvetydig? (Antal matchningar stämmer inte med antal entiteter)
+                        let isAmbiguous = false;
+                        if (actualCount !== expectedCount) {
+                            isAmbiguous = true;
+                            // Varningen läggs till men programmet fortsätter att försöka korrigera
+                            deviationMessages.push({ 
+                                type: 'AMBIGUOUS_FIXED', 
+                                recordId, 
+                                entityId, 
+                                text: entityText, 
+                                reason: `Antal förekomster (${actualCount}) matchar inte antal entiteter (${expectedCount})` 
+                            });
+                            // Observera: Vi sätter INTE till "XXX", utan fortsätter till korrigering.
+                        }
+                        
+                        // Kontroll 3: Korrigeringslogik (gäller både entydiga och tvetydiga matchningar)
+                        
+                        let bestNewStartIndex = -1;
+                        let minDistance = Infinity;
+                        
+                        // Alla matchningar som ännu inte har tilldelats
+                        const availableMatches = matchIndices.filter(index => !assignedIndices[trimmedEntityText].has(index));
+
+                        // Hitta den matchning som ligger närmast det ursprungliga indexet
+                        // Fallback till den första tillgängliga matchningen om originalEntity.start är "XXX" eller icke-numeriskt
+                        const originalStart = typeof originalEntity.start === 'number' ? originalEntity.start : -1;
+                        
+                        if (availableMatches.length > 0) {
+                            if (originalStart !== -1) {
+                                // Sök efter närmaste matchning baserat på det ursprungliga indexet
+                                for (const index of availableMatches) {
+                                    const distance = Math.abs(index - originalStart);
+                                    if (distance < minDistance) {
+                                        minDistance = distance;
+                                        bestNewStartIndex = index;
+                                    }
+                                }
+                            }
+                            
+                            // Om original index var ogiltigt eller om vi bara har en matchning kvar
+                            if (bestNewStartIndex === -1) {
+                                bestNewStartIndex = availableMatches[0];
+                            }
+                        }
+
+                        // Kontroll 4: Slutgiltig tilldelning
+                        if (bestNewStartIndex !== -1) {
+                            const newEndIndex = bestNewStartIndex + trimmedEntityText.length;
+                            
+                            // Bara räkna som korrigerad om de gamla indexen var olika ELLER om det var tvetydigt
+                            // Vi räknar tvetydigt korrigerade fall (isAmbiguous) som korrigerade index, 
+                            // även om det nya indexet råkar vara detsamma som det gamla, eftersom logiken ändrats.
+                            if (isAmbiguous || entity.start !== bestNewStartIndex || entity.end !== newEndIndex) {
+                                correctedCount++;
+                            }
+
+                            // Registrera det nya indexet som använt för denna textsträng
+                            assignedIndices[trimmedEntityText].add(bestNewStartIndex);
+
+                            return {
+                                ...entity,
+                                start: bestNewStartIndex,
+                                end: newEndIndex
+                            };
+                        } else {
+                            // Detta ska inte hända om availableMatches.length > 0, men hanteras som fallback
+                            deviationMessages.push({ type: 'XXX', recordId, entityId, text: entityText, reason: 'Logikfel: Kunde inte hitta någon tillgänglig matchning' });
+                            return { ...entity, start: "XXX", end: "XXX" };
+                        }
+                    })
+                    .filter(entity => entity !== null); // Ta bort entiteter som inte hittades
+
+                return {
+                    ...record,
+                    gold_entities: correctedEntities
+                };
+            });
+            
+            // 4. Skapa statusmeddelandet
+            let statusHtml = `<span class="text-green-600 font-semibold">${correctedCount} index korrigerades.</span>`;
+            
+            if (deviationMessages.length > 0) {
+                const deviationsList = deviationMessages.map(dev => {
+                    let message;
+                    if (dev.type === 'XXX') {
+                        message = `XXX (Tom/Logikfel): ID ${dev.recordId}:${dev.entityId} (Text: "${dev.text}")`;
+                    } else if (dev.type === 'DELETE') {
+                        message = `BORTTAGEN (Saknas): ID ${dev.recordId}:${dev.entityId}`;
+                    } else if (dev.type === 'AMBIGUOUS_FIXED') {
+                        message = `VARNING (Tvetydig): ID ${dev.recordId}:${dev.entityId} (Korrigerad till närmaste index)`;
+                    }
+                    // Endast XXX och DELETE visas i rött för att markera dem som "problem"
+                    const colorClass = (dev.type === 'XXX' || dev.type === 'DELETE') ? 'text-red-600' : 'text-orange-600';
+                    return `<li class="${colorClass}">${message}</li>`;
+                }).join('');
+                
+                statusHtml += `<div class="mt-2 text-gray-700"><strong>${deviationMessages.length} avvikelser/varningar:</strong><ul class="list-disc list-inside mt-1 text-sm">${deviationsList}</ul></div>`;
+            }
+
+            statusElement.innerHTML = statusHtml;
+
+            // 5. Visa det korrigerade resultatet
+            let outputString = JSON.stringify(correctedData, null, 2);
+
+            if (removeBrackets) {
+                // Ta bort omslutande [ och ] samt eventuella inledande/avslutande radbrytningar/mellanslag
+                outputString = outputString.trim();
+                if (outputString.startsWith('[') && outputString.endsWith(']')) {
+                    // Tar bort första [ och sista ]
+                    outputString = outputString.substring(1, outputString.length - 1).trim();
+                }
+            }
+
+            outputElement.value = outputString;
+        }
+
+        /**
+         * Hittar alla startindex för en given textsträng i en text.
+         * @param {string} parentText - Texten att söka i.
+         * @param {string} searchText - Textsträngen att söka efter.
+         * @returns {number[]} - En array av startindex.
+         */
+        function findAllIndices(parentText, searchText) {
+            const indices = [];
+            let startIndex = 0;
+            while (startIndex < parentText.length) {
+                const index = parentText.indexOf(searchText, startIndex);
+                if (index === -1) {
+                    break;
+                }
+                indices.push(index);
+                // Hoppa framåt för att hitta nästa förekomst
+                startIndex = index + searchText.length;
+                // Säkerhetsstopp för att hantera 0-längds matchningar (vilket borde vara omöjligt här, men bra att ha)
+                if (searchText.length === 0) {
+                    startIndex++;
+                }
+            }
+            return indices;
+        }
+
+        // Exempeldata från den bifogade filen (data_swedish_example.json)
+        const placeholderJson = JSON.stringify([
+            {
+                "id": "sv-001",
+                "language": "sv",
+                "text": "Anna Karlsson bor på Storgatan 12, 111 22 Stockholm. Personnummer: 850101-1234.",
+                "gold_entities": [
+                    // Start/End felaktigt satt, korrigeras
+                    {"id": "e1", "label": "FIRST_NAME", "start": 999, "end": 999, "text": "Anna"},
+                    // Redan korrekt men felaktigt index i exempelfilen, korrigeras
+                    {"id": "e2", "label": "LAST_NAME",  "start": 5, "end": 13, "text": "Karlsson"},
+                    // Två mellanslag i annotation, trimmas och korrigeras
+                    {"id": "e3", "label": "ADDRESS",    "start": 22, "end": 54, "text": "Storgatan 12, 111 22 Stockholm  "}, 
+                    {"id": "e4", "label": "NATIONAL_ID","start": 69, "end": 80, "text": "850101-1234"}
+                ]
+            },
+            {
+                "id": "sv-004_accepterad_dublett_test",
+                "language": "sv",
+                "text": "Patienten heter Anna, och läkaren heter Anna.",
+                "gold_entities": [
+                    // Entydig (2 entiteter för 2 textförekomster), korrigeras normalt
+                    {"id": "e1", "label": "FIRST_NAME", "start": 19, "end": 24, "text": "Anna"}, // Närmast index 17
+                    {"id": "e2", "label": "FIRST_NAME", "start": 39, "end": 44, "text": "Anna"} // Närmast index 37
+                ]
+            },
+            {
+                "id": "sv-005_tvetydig_test",
+                "language": "sv",
+                "text": "Patienten heter Anna, och läkaren heter Anna.", // "Anna" finns vid index 17 och 37
+                "gold_entities": [
+                    // Tvetydig (1 entitet för 2 textförekomster). Korrigeras till NÄRMASTE (index 17) och ger VARNING.
+                    {"id": "e1", "label": "FIRST_NAME", "start": 30, "end": 34, "text": "Anna"} // Ursprungligt index 30 ligger närmast index 37 (avstånd 7) jämfört med index 17 (avstånd 13)
+                ]
+            },
+            {
+                "id": "sv-006_saknas_test",
+                "language": "sv",
+                "text": "Här finns ingen entitet.",
+                "gold_entities": [
+                    // BORTTAGNING
+                    {"id": "e1", "label": "FOOD", "start": 0, "end": 0, "text": "Banan"},
+                    // BORTTAGNING
+                    {"id": "e2", "label": "FOOD", "start": 1, "end": 1, "text": "Äpple"}
+                ]
+            }
+        ], null, 2); // Använder 2 mellanslag för snyggare utskrift
+
+        // Lägger till exempeldatan när sidan laddats
+        window.onload = function() {
+            document.getElementById('inputJson').value = placeholderJson;
+            // Koppla klickhändelsen till knappen
+            document.getElementById('correctButton').addEventListener('click', correctIndices);
+        };
+    </script>
+</head>
+<body class="p-4 sm:p-8 bg-gray-50">
+    <div class="max-w-6xl mx-auto main-container">
+        <header class="mb-6">
+            <h1 class="text-3xl font-extrabold text-gray-800 mb-2">JSON Entitetsindex Korrigerare</h1>
+            <p class="text-gray-600">Klistra in din JSON-text. Index korrigeras baserat på entitetens text. Tvetydiga matchningar korrigeras till närmaste index, men ger en varning i statusfältet.</p>
+        </header>
+
+        <!-- Felmeddelande-ruta -->
+        <div id="errorMessage" class="hidden opacity-0 p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-100 border border-red-300" role="alert">
+            <!-- Felmeddelande visas här -->
+        </div>
+
+        <!-- Kontrollpanel: Flyttad Ovanför Indata/Utdata -->
+        <div class="bg-white p-4 rounded-lg shadow-xl border border-gray-200 mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                
+                <!-- Kryssruta -->
+                <div class="flex items-center">
+                    <input id="removeOutputBrackets" type="checkbox" checked class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="removeOutputBrackets" class="ml-2 text-sm font-medium text-gray-700 whitespace-nowrap">Ta bort omslutande [ och ]</label>
+                </div>
+
+                <!-- Knapp -->
+                <button id="correctButton" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    Rätta Index
+                </button>
+                
+                <!-- Statusfält -->
+                <div id="statusMessage" class="flex-grow w-full sm:w-auto p-2 bg-gray-100 rounded-lg border border-gray-300 text-gray-700 text-sm">
+                    Klicka på "Rätta Index" för att starta.
+                </div>
+            </div>
+        </div>
+
+        <main>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
+                <!-- Inmatningsfält -->
+                <div>
+                    <label for="inputJson" class="block text-lg font-medium text-gray-700 mb-2">Indata (JSON)</label>
+                    <textarea id="inputJson" class="w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Klistra in din JSON här..."></textarea>
+                </div>
+
+                <!-- Utmatningsfält -->
+                <div>
+                    <label for="outputJson" class="block text-lg font-medium text-gray-700 mb-2">Utdata (Korrigerad JSON)</label>
+                    <textarea id="outputJson" class="w-full border border-gray-300 rounded-lg p-3 shadow-sm bg-gray-100" placeholder="Korrigerad JSON visas här..." readonly></textarea>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer: Längst ner -->
+    <footer class="w-full bg-gray-200 mt-8 p-3 text-center text-sm text-gray-600 border-t border-gray-300">
+        &copy; 2025 JSON Index Korrigerare | Utvecklad av Danny Gomez
+    </footer>
+</body>
+</html>

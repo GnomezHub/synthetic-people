@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Entity Annotator</title>
+    <!-- Laddar Tailwind CSS för enkel och snygg styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Sätter standardfonten Inter */
+        html { font-family: 'Inter', sans-serif; }
+        
+        /* Stilar för den markerade texten, som representerar en "gold entity" */
+        .entity-highlight {
+            cursor: pointer;
+            padding: 1px 3px; /* Mindre padding för mer kompakt känsla */
+            margin: 0 0px; 
+            border-radius: 4px;
+            transition: background-color 0.1s ease;
+            line-height: 1.6; /* Mindre radhöjd */
+            display: inline-block; 
+            box-decoration-break: clone; 
+        }
+        
+        /* Denna stil är kritisk för att få radbrytningar att fungera i annoteringsområdet */
+        #raw-text {
+            white-space: pre-wrap;
+            word-break: break-word; /* Säkerställer att långa ord bryts */
+        }
+
+        /* De enskilda span-elementen måste ha white-space: pre för att behålla alla mellanslag och radbrytningar */
+        #raw-text span { 
+            white-space: pre; 
+        } 
+
+        .entity-highlight:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Färger baserade på entitetstyper */
+        .FIRST_NAME { background-color: #fca5a5; } 
+        .LAST_NAME { background-color: #fde68a; } 
+        .ADDRESS { background-color: #a5f3fc; } 
+        .NATIONAL_ID { background-color: #c4b5fd; } 
+        .PHONE { background-color: #bbf7d0; } 
+        .EMAIL { background-color: #fbcfe8; } 
+        
+        /* Lägg till en stil för den för närvarande valda labeln för att visa vilken färg den får */
+        #label-selector {
+            border: 2px solid;
+            transition: border-color 0.2s ease;
+        }
+
+        /* Säkerställer att radbrytningar fungerar i textarean */
+        #text-input {
+            white-space: pre-wrap;
+        }
+    </style>
+    <script>
+        // Array med de entitetstyper som är tillgängliga för annotering
+        const AVAILABLE_LABELS = [
+            'FIRST_NAME', 
+            'LAST_NAME', 
+            'ADDRESS', 
+            'NATIONAL_ID', 
+            'PHONE', 
+            'EMAIL',
+            'OTHER' 
+        ];
+
+        // Entiteter som tillåter multi-word-markering med två klick
+        const MULTI_WORD_LABELS = ['ADDRESS', 'NATIONAL_ID', 'PHONE', 'EMAIL']; 
+
+        // Lagrar den SENAST genererade entiteten. Nollställs efter varje lyckad annotering.
+        let lastGeneratedEntity = null; 
+        
+        let currentTextOffset = 0; 
+        let nextEntityId = 1; 
+        let selectionStartSpan = null; 
+
+        // Regex för att matcha ledande/avslutande tecken som ska ignoreras vid annotering.
+        // Inkluderar: ( ) [ ] { } " ' . , : ; ! ? och mellanslag (\s)
+        const TRIM_CHARS_REGEX = /[()[\]{}'".,:;!?\s]/;
+
+
+        /**
+         * Hjälpfunktion för att kontrollera om en label tillåter multi-ord markering.
+         * @param {string} label - Entitetstypen.
+         * @returns {boolean}
+         */
+        function isMultiWordLabel(label) {
+            return MULTI_WORD_LABELS.includes(label);
+        }
+
+        /**
+         * Initialiserar applikationen, sätter upp händelselyssnare och renderar den initiala texten.
+         */
+        function initApp() {
+            const rawTextElement = document.getElementById('raw-text');
+            const labelSelector = document.getElementById('label-selector');
+            
+            // Fyll dropdown-menyn
+            AVAILABLE_LABELS.forEach(label => {
+                const option = document.createElement('option');
+                option.value = label;
+                option.textContent = label;
+                labelSelector.appendChild(option);
+            });
+            
+            loadExampleText();
+
+            // Lägg till händelselyssnare
+            rawTextElement.addEventListener('click', handleTextClick);
+            labelSelector.addEventListener('change', updateLabelColor);
+            labelSelector.addEventListener('change', clearTemporaryHighlight); 
+            document.getElementById('text-input').addEventListener('input', updateText);
+
+            updateLabelColor();
+            
+            document.getElementById('json-output').textContent = '// Nästa genererade entitet (med radbrytningar och avslutande kommatecken) kommer att visas här.';
+        }
+
+        /**
+         * Laddar en exempeltext från den uppladdade filen för att komma igång.
+         */
+        function loadExampleText() {
+            const exampleData = [
+                {
+                    "id": "sv-001",
+                    "language": "sv",
+                    // Uppdaterad text för att testa trimning av parenteser och citattecken
+                    "text": "Anna Karlsson bor på (Storgatan 12, 111 22 Stockholm). Personnummer: '850101-1234'.",
+                }
+            ]; 
+
+            const rawText = exampleData[0].text;
+            document.getElementById('text-input').value = rawText;
+            renderAnnotatableText(rawText);
+        }
+
+        /**
+         * Hanterar ändringar i textinmatningsfältet.
+         */
+        function updateText(event) {
+            const rawText = event.target.value;
+            lastGeneratedEntity = null;
+            nextEntityId = 1;
+            selectionStartSpan = null;
+            renderAnnotatableText(rawText);
+        }
+
+        /**
+         * Anpassar färgen på dropdown-menyn.
+         */
+        function updateLabelColor() {
+            const labelSelector = document.getElementById('label-selector');
+            const selectedLabel = labelSelector.value;
+            labelSelector.className = labelSelector.className.replace(/border-[\w-]+/g, ''); 
+            labelSelector.classList.add(`border-${getColorForLabel(selectedLabel)}`);
+
+            if (isMultiWordLabel(selectedLabel)) {
+                 document.getElementById('copy-message').textContent = 'Multi-ord läge: Klicka på FÖRSTA och SISTA ordet för att markera.';
+            } else {
+                 document.getElementById('copy-message').textContent = 'Enkelt ord läge: Klicka på ett ord för att markera det.';
+            }
+        }
+        
+        /**
+         * Återställer den temporära stilen (blå ring) för en pågående multi-word markering.
+         */
+        function clearTemporaryHighlight() {
+            const rawTextContainer = document.getElementById('raw-text');
+            const allSpans = Array.from(rawTextContainer.childNodes);
+
+            allSpans.forEach(span => {
+                span.classList.remove('bg-blue-300', 'ring-2', 'ring-blue-500');
+            });
+            selectionStartSpan = null; 
+        }
+
+        /**
+         * Mappar label-namn till Tailwind-klassnamn för kantfärg.
+         */
+        function getColorForLabel(label) {
+             switch (label) {
+                case 'FIRST_NAME': return 'red-400';
+                case 'LAST_NAME': return 'yellow-400';
+                case 'ADDRESS': return 'cyan-400';
+                case 'NATIONAL_ID': return 'purple-400';
+                case 'PHONE': return 'green-400';
+                case 'EMAIL': return 'pink-400';
+                default: return 'gray-400';
+            }
+        }
+
+        /**
+         * Trimmar ledande och avslutande skiljetecken och uppdaterar offsets.
+         * Denna funktion används av både single-word och multi-word logik.
+         * @param {string} text - Textsträngen som ska trimmas.
+         * @param {number} startOffset - Strängens start-offset.
+         * @returns {{text: string, start: number, end: number}} Det trimmade resultatet.
+         */
+        function trimTextAndOffsets(text, startOffset) {
+            let leadingIgnoreLength = 0;
+            while(leadingIgnoreLength < text.length && TRIM_CHARS_REGEX.test(text[leadingIgnoreLength])) {
+                leadingIgnoreLength++;
+            }
+
+            let trailingIgnoreLength = 0;
+            while(trailingIgnoreLength < text.length && TRIM_CHARS_REGEX.test(text[text.length - 1 - trailingIgnoreLength])) {
+                trailingIgnoreLength++;
+            }
+            
+            const finalTrimmedText = text.substring(leadingIgnoreLength, text.length - trailingIgnoreLength);
+            
+            if (finalTrimmedText.length > 0) {
+                 return {
+                    text: finalTrimmedText,
+                    start: startOffset + leadingIgnoreLength,
+                    end: startOffset + text.length - trailingIgnoreLength
+                };
+            }
+            
+            // Returnera originalet om trimningen resulterar i en tom sträng
+            return {
+                text: text,
+                start: startOffset,
+                end: startOffset + text.length
+            };
+        }
+
+
+        /**
+         * Renderar om råtexten genom att omsluta varje ord/separat del med en span.
+         */
+        function renderAnnotatableText(rawText) {
+            const container = document.getElementById('raw-text');
+            container.innerHTML = '';
+            
+            // Matchar: 1. Radbrytningar (\n) ELLER 2. Mellanslag/icke-ord tecken ELLER 3. Ord/icke-mellanslag/icke-radbrytning tecken.
+            const parts = rawText.match(/(\n|\s+|[^\s\n]+)/g) || [];
+            currentTextOffset = 0;
+
+            parts.forEach(part => {
+                const span = document.createElement('span');
+                span.textContent = part;
+                span.dataset.start = currentTextOffset;
+                span.dataset.end = currentTextOffset + part.length;
+                span.dataset.text = part; 
+                
+                if (part.trim().length > 0 && part.match(/[^\s\n]/)) {
+                    // Annoterbart ord
+                    span.classList.add('cursor-pointer', 'hover:bg-gray-200', 'rounded', 'px-1', 'py-0.5');
+                    span.dataset.isAnnotatable = 'true';
+                } else {
+                    // Mellanslag, skiljetecken eller radbrytning
+                    span.classList.add('whitespace-pre'); 
+                    span.dataset.isAnnotatable = 'false';
+                }
+
+                container.appendChild(span);
+                currentTextOffset += part.length; 
+            });
+
+            if (!lastGeneratedEntity) {
+                document.getElementById('json-output').textContent = '// Nästa genererade entitet (med radbrytningar och avslutande kommatecken) kommer att visas här.';
+            }
+        }
+
+        /**
+         * Hanterar klick på ord i texten.
+         */
+        function handleTextClick(event) {
+            const target = event.target;
+            const label = document.getElementById('label-selector').value;
+            
+            if (target.tagName !== 'SPAN' || target.dataset.isAnnotatable !== 'true') {
+                clearTemporaryHighlight(); 
+                return;
+            }
+
+            let newEntity = null;
+            const rawText = document.getElementById('text-input').value;
+
+
+            // --- Multi-Word Logic (2-klicks markering) ---
+            if (isMultiWordLabel(label)) {
+                // Steg 1: Starta markering 
+                if (!selectionStartSpan || selectionStartSpan.dataset.label !== label) {
+                    clearTemporaryHighlight(); 
+                    
+                    selectionStartSpan = target;
+                    selectionStartSpan.dataset.label = label; 
+                    
+                    target.classList.add('bg-blue-300', 'ring-2', 'ring-blue-500'); 
+                    document.getElementById('copy-message').textContent = `Label vald: ${label}. Klicka på sista ordet för att slutföra entiteten.`;
+                    return;
+                } 
+                
+                // Steg 2: Slutför markering
+                if (selectionStartSpan) {
+                    const startSpan = selectionStartSpan;
+                    const endSpan = target;
+
+                    const actualStartOffset = Math.min(parseInt(startSpan.dataset.start), parseInt(endSpan.dataset.start)); 
+                    const actualEndOffset = Math.max(parseInt(startSpan.dataset.end), parseInt(endSpan.dataset.end)); 
+                    
+                    let fullText = rawText.substring(actualStartOffset, actualEndOffset);
+                    
+                    // Använd den centraliserade trimningsfunktionen
+                    const trimmed = trimTextAndOffsets(fullText, actualStartOffset);
+
+                    newEntity = {
+                        id: 'e' + nextEntityId++, 
+                        label: label,
+                        start: trimmed.start,
+                        end: trimmed.end,
+                        text: trimmed.text
+                    };
+
+                    // Rensa selectionStartSpan och temporär markering
+                    clearTemporaryHighlight(); 
+                }
+            } else {
+                // --- Single-Word Logic (Standard) ---
+                clearTemporaryHighlight(); 
+                
+                let start = parseInt(target.dataset.start, 10);
+                let text = target.dataset.text;
+                
+                // Använd den centraliserade trimningsfunktionen
+                const trimmed = trimTextAndOffsets(text, start);
+
+                newEntity = {
+                    id: 'e' + nextEntityId++,
+                    label: label,
+                    start: trimmed.start,
+                    end: trimmed.end,
+                    text: trimmed.text
+                };
+            }
+            
+            // Uppdatera state och UI om en entitet skapades
+            if (newEntity) {
+                lastGeneratedEntity = newEntity;
+                updateJsonLive();
+                
+                // Återställ visuellt läge genom att rendera om texten HELT
+                renderAnnotatableText(rawText);
+
+                document.getElementById('copy-message').textContent = `Entitet genererad: ${newEntity.label}. Markeringar nollställda.`;
+                setTimeout(() => updateLabelColor(), 3000); 
+            }
+        }
+        
+        /**
+         * Uppdaterar förhandsvisningen av JSON-utdata med endast den senaste entiteten.
+         */
+        function updateJsonLive() {
+             const outputElement = document.getElementById('json-output');
+             
+             if (lastGeneratedEntity) {
+                 // Här visar vi bara den nya entiteten + ett avslutande komma
+                 outputElement.textContent = JSON.stringify(lastGeneratedEntity, null, 2) + ',';
+             } else {
+                 outputElement.textContent = '// Nästa genererade entitet (med radbrytningar och avslutande kommatecken) kommer att visas här.';
+             }
+        }
+
+
+        // Starta applikationen när sidan har laddats klart
+        window.onload = initApp;
+
+    </script>
+</head>
+<body class="bg-gray-50 p-4 sm:p-6"> <!-- Mindre padding på body -->
+
+    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-5 md:p-6"> <!-- Mindre padding på main container -->
+        
+        <!-- RUBRIK -->
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold text-gray-800">Gold Entity Annotator</h1>
+        </div>
+
+        <!-- Steg 1: Textinmatning -->
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold mb-2 text-gray-700">1. Råtext</h2>
+            <p class="text-xs text-gray-500 mb-2">Klistra in texten. Annotering nollställs när texten ändras.</p>
+            <textarea id="text-input" rows="3" 
+                      class="w-full p-2 border-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                      placeholder="T.ex. Johan Svensson bor på Lilla Gatan 14, 123 45 Solna."></textarea>
+        </div>
+
+        <!-- Steg 2: Annotera -->
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold mb-2 text-gray-700">2. Annotera</h2>
+            
+
+            <!-- Välj Label Dropdown (flyttad hit) -->
+            <div class="flex items-center gap-2 mb-2 text-right">
+                 <label for="label-selector" class="font-medium text-gray-700 whitespace-nowrap text-sm">Välj Label:</label>
+                 <select id="label-selector" 
+                         class="p-1.5 rounded-lg bg-white shadow-sm transition duration-150 ease-in-out focus:ring-blue-500 focus:border-blue-500 text-sm">
+                     <!-- Alternativen fylls i av JavaScript -->
+                 </select>
+            </div>
+
+
+            <!-- Meddelande/vägledning för multi-word selection -->
+            <p id="copy-message" class="text-sm text-blue-600 font-medium"></p>
+
+
+            <!-- Annoterbar textyta -->
+            <div id="raw-text" 
+                 class="p-3 bg-gray-100 border border-gray-300 rounded-lg min-h-[80px] text-base leading-relaxed cursor-text select-none mb-3">
+                <!-- Texten renderas här av JavaScript -->
+            </div>
+
+            
+            
+        </div>
+
+        <!-- Steg 3: Generera utdata (Rubrik ändrad, knapp borttagen, textstorlek ökad) -->
+        <div class="mb-1">
+            <h2 class="text-lg font-semibold mb-2 text-gray-700">3. Genererad JSON</h2>
+            
+            <!-- JSON Output - Ändrad till text-sm -->
+            <pre class="mt-2 p-3 bg-gray-900 text-green-300 rounded-lg overflow-x-auto text-sm shadow-inner min-h-[100px]"><code id="json-output">// Nästa genererade entitet (med radbrytningar och avslutande kommatecken) kommer att visas här.</code></pre>
+        </div>
+
+    </div>
+    <!-- Footer-->
+    <footer class="w-full bg-gray-200 mt-8 p-3 text-center text-sm text-gray-600 border-t border-gray-300">
+        &copy; 2025 Gold Entity Annotator | Utvecklad av Danny Gomez
+    </footer>
+</body>
+</html>
