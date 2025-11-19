@@ -107,7 +107,7 @@ def get_entities_from_model(text_content):
     except json.JSONDecodeError:
         
         print("\n--- VARNING: Kunde inte parsa JSON-svar från modellen ---", file=sys.stderr)
-    #    print(f"\n--- VARNING: Kunde inte parsa JSON-svar från modellen ---", file=sys.stderr)
+
         print(f"Modellens råa svar: {raw_response}", file=sys.stderr)
         return [] # Returnera en tom lista vid fel
     except Exception as e:
