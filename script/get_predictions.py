@@ -13,56 +13,70 @@ import os
 
 # --- Konfiguration ---
 MODEL_NAME = "gemma3:4b"  # Se till att du har denna modell: `ollama pull gemma3:4b`
-INPUT_FILE = "testdata_fullname.json"
-OUTPUT_FILE = "testdata_fullname_predicted.json"
+INPUT_FILE = "data_short.json"
+OUTPUT_FILE = "data_short_out.json"
 
 # --- System-prompt för Modellen ---
 # Denna prompt är avgörande. Den talar om för modellen exakt vad den ska göra
 # och vilket format den MÅSTE svara i.
 SYSTEM_PROMPT = """
-Du är en expert på att extrahera information (Named Entity Recognition - NER) från svensk text.
-Din uppgift är att hitta och extrahera specifika entiteter från texten som användaren tillhandahåller.
+You are a strict, rule-based Named Entity Recognition (NER) model. 
+Your task is to extract personal data entities from Swedish text. You will receive 
+a text from the user and must identify all occurrences of the following entity types:
 
-Du MÅSTE använda **exakt** följande etiketter:
-- FIRST_NAME: Ett separat förnamn.
-- LAST_NAME: Ett separat efternamn.
-- FULL_NAME: Ett komplett namn (för- och efternamn) när de förekommer tillsammans.
-- ADDRESS: En gatuadress, postnummer och stad.
-- PHONE: Ett telefonnummer.
-- EMAIL: En e-postadress.
-- NATIONAL_ID: Ett svenskt personnummer (t.ex. ÅÅMMDD-XXXX).
+REQUIRED LABELS:
+- FIRST_NAME: A standalone first name.
+- LAST_NAME: A standalone last name.
+- FULL_NAME: A complete name where first name and last name (and optional middle names) 
+             appear directly next to each other in the text.
+- ADDRESS: A street address, postal code, or city (e.g., “Storgatan 12, 123 45 Malmö”).
+- PHONE: Any Swedish-format phone number.
+- EMAIL: An email address.
+- NATIONAL_ID: A Swedish personal identity number (personnummer), in formats 
+               YYMMDD-XXXX, YYMMDDXXXX, YYYYMMDDXXXX or YYYYMMDD-XXXX.
 
-VIKTIG REGEL FÖR NAMN:
-Använd `FULL_NAME` om du hittar ett för- och efternamn och eventuella mellannamn direkt efter varandra (t.ex. 'Anna Karlsson' eller 'Monika Marie Grönlund') .
-Använd `FIRST_NAME` och `LAST_NAME` endast om de förekommer helt separat (t.ex. 'Patientens namn: Erik' eller 'Dr. Svensson').
+RULES FOR NAMES:
+1. If a first name and a last name appear directly next to each other, 
+   you MUST use FULL_NAME only (not FIRST_NAME + LAST_NAME).
+2. Use FIRST_NAME and LAST_NAME only when they appear separately.
+3. FULL_NAME may contain middle names.
 
-OUTPUT-FORMAT:
-Du måste svara med **enbart** en JSON-lista. Inkludera ingen förklarande text, inga ursäkter, inga kommentarer - bara JSON.
-Varje objekt i listan ska ha följande exakta struktur:
+INDEXING RULES:
+- Use Python-style indexing:
+  * start = index of the first character (0-based)
+  * end = index of the first character after the entity
+- Indices MUST match the text exactly.
+- The “text” field must contain the exact substring from the input 
+  (preserving casing, spaces, accents, and hyphens).
+
+OUTPUT FORMAT (VERY IMPORTANT):
+You must respond with a JSON array only. No explanations, no comments, no markdown fences.
+Each entity must be an object of the form:
+
 {
-  "label": "ETIKETT_NAMN",
-  "text": "den extraherade texten",
-  "start": start_index_i_texten,
-  "end": end_index_i_texten
+  "label": "LABEL_NAME",
+  "text": "exact entity text",
+  "start": integer,
+  "end": integer
 }
 
-Om du inte hittar några entiteter alls, svara med en tom lista: []
+If no entities are found, return an empty list: []
 """
 
 def load_data(filename):
     """Läser in JSON-datan från en fil."""
     if not os.path.exists(filename):
-        print(f"FEL: Inputfilen '{filename}' hittades inte.", file=sys.stderr)
+        print(f"ERROR: Input file '{filename}' wasn't found.", file=sys.stderr)
         sys.exit(1)
         
     try:
         with open(filename, 'r', encoding='utf-8') as f:
             return json.load(f)
     except json.JSONDecodeError:
-        print(f"FEL: Kunde inte avkoda JSON från '{filename}'. Filen kan vara korrupt.", file=sys.stderr)
+        print(f"ERROR: Couldn't decode JSON from '{filename}'. The file might be corrupted.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"FEL vid läsning av fil: {e}", file=sys.stderr)
+        print(f"ERROR reading file: {e}", file=sys.stderr)
         sys.exit(1)
 
 def save_data(filename, data):
@@ -70,15 +84,15 @@ def save_data(filename, data):
     try:
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        print(f"\nResultat sparat till '{filename}'")
+        print(f"\nResult saved to '{filename}'")
     except IOError as e:
-        print(f"FEL: Kunde inte skriva till filen '{filename}'. Fel: {e}", file=sys.stderr)
+        print(f"ERROR: Couldn't write data to file'{filename}'. Error: {e}", file=sys.stderr)
 
 def get_entities_from_model(text_content):
     """Anropar Ollama-modellen för att extrahera entiteter."""
     
     # Användarens prompt är bara den rena texten, system-prompten har alla instruktioner.
-    user_prompt = f"Extrahera alla entiteter från följande text och svara **endast** med den begärda JSON-listan:\n\n{text_content}"
+    user_prompt = f"Extract all entities from the following text and reply ONLY with the requested JSON-list: \n\n{text_content}"
     
     try:
         response = ollama.chat(
@@ -106,14 +120,14 @@ def get_entities_from_model(text_content):
 
     except json.JSONDecodeError:
         
-        print("\n--- VARNING: Kunde inte parsa JSON-svar från modellen ---", file=sys.stderr)
+        print("\n--- WARNING: Couldn't parse JSON response from model ---", file=sys.stderr)
     #    print(f"\n--- VARNING: Kunde inte parsa JSON-svar från modellen ---", file=sys.stderr)
-        print(f"Modellens råa svar: {raw_response}", file=sys.stderr)
+        print(f"Model's raw response: {raw_response}", file=sys.stderr)
         return [] # Returnera en tom lista vid fel
     except Exception as e:
         # Detta fångar t.ex. anslutningsfel om 'ollama serve' inte körs
-        print(f"\n--- FEL: Något gick fel vid anrop till Ollama ({e}) ---", file=sys.stderr)
-        print("Kontrollera att Ollama-servern körs och att modellen '{MODEL_NAME}' är nedladdad.", file=sys.stderr)
+        print(f"\n--- ERROR: Something went wrong when calling Ollama ({e}) ---", file=sys.stderr)
+        print("Check that the Ollama server is running and that the model '{MODEL_NAME}' is downloaded.", file=sys.stderr)
         return None # Returnera None för att signalera ett allvarligt fel
 
 def process_data(input_data):
@@ -121,14 +135,14 @@ def process_data(input_data):
     output_data = []
     
     for i, item in enumerate(input_data):
-        print(f"Bearbetar nod {item.get('id', i+1)}... ", end="")
+        print(f"Processing node {item.get('id', i+1)}... ", end="")
         text_to_analyze = item['text']
         
         # 1. Få entiteter från modellen
         model_entities = get_entities_from_model(text_to_analyze)
         
         if model_entities is None:
-            print("Avbryter på grund av tidigare fel.")
+            print("Interrupting process.")
             return None # Avbryt hela processen
 
         # 2. Formatera om till 'gold_entities'-struktur
@@ -136,20 +150,20 @@ def process_data(input_data):
         for j, entity in enumerate(model_entities):
             # Validera att vi har nycklarna vi behöver från modellen
             if not all(k in entity for k in ('label', 'text', 'start', 'end')):
-               print(f"\n--- VARNING: Hoppar över felaktigt formaterad entitet från modell: {entity}", file=sys.stderr)
+               print(f"\n--- WARNING: Skipping wrongly formatted entity from model: {entity}", file=sys.stderr)
                continue
 
             # Extra validering: Kontrollera att modellens index stämmer
             start, end, text = entity['start'], entity['end'], entity['text']
             if text_to_analyze[start:end] != text:
-                print(f"\n--- VARNING: Modellens index matchar inte text! '{text}' != '{text_to_analyze[start:end]}'. Försöker hitta texten manuellt.", file=sys.stderr)
+                print(f"\n--- WARNING: Model index doesn't match text: '{text}' != '{text_to_analyze[start:end]}'. Trying to find text manually.", file=sys.stderr)
                 # Fallback: försök hitta texten manuellt
                 new_start = text_to_analyze.find(text)
                 if new_start != -1:
                     start = new_start
                     end = new_start + len(text)
                 else:
-                    print(f"--- VARNING: Kunde inte hitta '{text}' i originaltexten. Hoppar över entitet.", file=sys.stderr)
+                    print(f"--- WARNING: Couldn't find '{text}' in the original text. Skipping entity.", file=sys.stderr)
                     continue # Hoppa över denna felaktiga entitet
 
             formatted_entities.append({
@@ -165,17 +179,17 @@ def process_data(input_data):
             "id": item['id'],
             "language": item['language'],
             "text": item['text'],
-            "gold_entities": formatted_entities # Använder modellens prediktioner
+            "predicted_entities": formatted_entities # Använder modellens prediktioner
         }
         output_data.append(new_item)
-        print(f"Klar. Hittade {len(formatted_entities)} entiteter.")
+        print(f"Done. Found {len(formatted_entities)} entities.")
         
     return output_data
 
 # --- Huvudprogram ---
 def main():
-    print(f"Startar bearbetning med modell: {MODEL_NAME}")
-    print(f"Läser indata från: {INPUT_FILE}")
+    print(f"Starting to process with model: {MODEL_NAME}")
+    print(f"Reading input data from: {INPUT_FILE}")
     
     # 1. Läs in indata
     input_data = load_data(INPUT_FILE)
@@ -189,7 +203,7 @@ def main():
     if predictions:
         save_data(OUTPUT_FILE, predictions)
     else:
-        print("Ingen utdata genererades på grund av fel.", file=sys.stderr)
+        print("No output data was generated due to error.", file=sys.stderr)
 
 if __name__ == "__main__":
     main()
