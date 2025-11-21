@@ -160,7 +160,7 @@ def process_data(input_data):
             "id": item['id'],
             "language": item['language'],
             "text": item['text'],
-            "gold_entities": formatted_entities # Använder modellens prediktioner
+            "predictions_entities": formatted_entities # Använder modellens prediktioner
         }
         output_data.append(new_item)
         print(f"Klar. Hittade {len(formatted_entities)} entiteter.")
