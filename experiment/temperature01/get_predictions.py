@@ -14,7 +14,7 @@ import os
 # --- Konfiguration ---
 MODEL_NAME = "gemma3:4b"  
 INPUT_FILE = "data_sv_NAME_31.json"
-OUTPUT_FILE = "predictions.json"
+OUTPUT_FILE = "predictions_31.json"
 
 # --- System-prompt för Modellen ---
 # Denna prompt är avgörande. Den talar om för modellen exakt vad den ska göra
@@ -83,7 +83,7 @@ def get_entities_from_model(text_content):
                 {"role": "user", "content": user_prompt}
             ],
             options={
-                "temperature": 0.0  # Låg temperatur för mer konsekventa JSON-svar
+                "temperature": 0.1  # Låg temperatur för mer konsekventa JSON-svar
             }
         )
         
@@ -135,18 +135,48 @@ def process_data(input_data):
                continue
 
             # Extra validering: Kontrollera att modellens index stämmer
+            # Hitta det befintliga blocket att ersätta:
+            # if text_to_analyze[start:end] != text:
+            # ...
+            
+            # --- Förbättrad Logik för Indexkorrigering ---
+
             start, end, text = entity['start'], entity['end'], entity['text']
-            if text_to_analyze[start:end] != text:
-                print(f"\n--- VARNING: Modellens index matchar inte text! '{text}' != '{text_to_analyze[start:end]}'. Försöker hitta texten manuellt.", file=sys.stderr)
-                # Fallback: försök hitta texten manuellt
-                new_start = text_to_analyze.find(text)
-                if new_start != -1:
+            
+            # Steg 1: Kontrollera om modellens index är korrekta
+            if start is not None and end is not None and text_to_analyze[start:end] == text:
+                # Index är korrekta, fortsätt
+                pass
+            else:
+                # Index är felaktiga eller saknas. Försök att hitta rätt förekomst.
+               # print(f"\n--- VARNING: Modellens index matchar inte text! '{text}' != '{text_to_analyze[start:end]}'. Försöker hitta texten manuellt nära den ursprungliga prediktionen.", file=sys.stderr)
+                
+                # Definiera ett sökfönster: +/- 20 tecken från det predikterade startindexet (baserat på empirisk erfarenhet)
+                WINDOW_SIZE = 20
+                search_start_pos = max(0, (start or 0) - WINDOW_SIZE)
+                search_end_pos = min(len(text_to_analyze), (start or 0) + WINDOW_SIZE + len(text)) # Lägg till längden på texten för att säkerställa att entiteten får plats
+
+                #  Begränsa sökningen till fönstret
+                # Obs: Använd `text_to_analyze[search_start_pos:search_end_pos]`
+                # Och justera resultatet tillbaka till den absoluta strängpositionen.
+                
+                search_slice = text_to_analyze[search_start_pos:search_end_pos]
+                
+                # Sök efter texten inom det begränsade fönstret
+                relative_start = search_slice.find(text)
+                
+                if relative_start != -1:
+                    # Rätta indexet:
+                    new_start = search_start_pos + relative_start
                     start = new_start
                     end = new_start + len(text)
+                  #  print(f"--- RÄTTAT: Index korrigerat till start: {start}, end: {end}.", file=sys.stderr)
                 else:
-                    print(f"--- VARNING: Kunde inte hitta '{text}' i originaltexten. Hoppar över entitet.", file=sys.stderr)
+                    print(f"--- VARNING: Kunde inte hitta '{text}' i närheten av ursprunglig position. Hoppar över entitet.", file=sys.stderr)
                     continue # Hoppa över denna felaktiga entitet
 
+            # Fortsätt med byggandet av formatted_entities.append(...)
+            # ...
             formatted_entities.append({
                 "id": f"e{j+1}", # Skapa nytt ID (e1, e2, ...)
                 "label": entity['label'],
