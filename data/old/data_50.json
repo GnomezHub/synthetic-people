@@ -1,0 +1,1120 @@
+{
+    "id": "sv-001",
+    "language": "sv",
+    "text": "På Skatteverket ringde en handläggare upp mig och frågade om varför jag skickat in två deklarationer för samma år. Jag förklarade att jag, Karin Elvström, bara försökt rätta ett misstag men glömde bifoga kopian från banken.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 139,
+        "end": 144,
+        "text": "Karin"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 145,
+        "end": 153,
+        "text": "Elvström"
+      },
+      {
+        "id": "e3",
+        "label": "NAME",
+        "start": 139,
+        "end": 153,
+        "text": "Karin Elvström"
+      }
+    ]
+  },
+  {
+    "id": "sv-002",
+    "language": "sv",
+    "text": "När HR-avdelningen skickade ut informationen råkade de av misstag lägga med min kollegas adress: Daggkåpsvägen 12, 432 22 Varberg. Jag upptäckte det när jag skulle dubbelkolla hennes timrapporter.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 97,
+        "end": 129,
+        "text": "Daggkåpsvägen 12, 432 22 Varberg"
+      }
+    ]
+  },
+  {
+    "id": "sv-003",
+    "language": "sv",
+    "text": "I patientjournalen noterades att Andreas Blixt, född 19920303-5512, upplever ökande smärta i vänster knä efter ett fall i trapporna hemma. Journalanteckningen behöver rättas då stavningen av efternamnet blev fel först.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 33,
+        "end": 40,
+        "text": "Andreas"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 41,
+        "end": 46,
+        "text": "Blixt"
+      },
+      {
+        "id": "e3",
+        "label": "NATIONAL_ID",
+        "start": 53,
+        "end": 66,
+        "text": "19920303-5512"
+      }
+    ]
+  },
+  {
+    "id": "sv-004",
+    "language": "sv",
+    "text": "När jag mejlade IT-support fick jag tillbaka ett autosvar som sa att ärendet kopplats till tekniker. Jag hade skrivit från min privata adress, linnea.hagman88@outlook.se, vilket kanske inte var helt rätt enligt rutinerna.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 143,
+        "end": 169,
+        "text": "linnea.hagman88@outlook.se"
+      }
+    ]
+  },
+  {
+    "id": "sv-005",
+    "language": "sv",
+    "text": "Kundtjänst bad mig kontrollera uppgifterna om försändelsen eftersom telefonnumret jag lämnat, 070 884 22 11, inte fungerade när de försökte ringa. Jag tror jag råkade skriva fel första siffran.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "PHONE",
+        "start": 94,
+        "end": 107,
+        "text": "070 884 22 11"
+      }
+    ]
+  },
+  {
+    "id": "sv-006",
+    "language": "sv",
+    "text": "Vid löneutbetalningen hos Kommunservice uppstod ett fel då uppgifterna för medarbetaren Rune Hallberg inte stämde överens med tidigare registrering. Hans gamla adress, Trekantsgatan 4, 118 53 Stockholm, låg fortfarande kvar i systemet.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 88,
+        "end": 92,
+        "text": "Rune"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 93,
+        "end": 101,
+        "text": "Hallberg"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 168,
+        "end": 201,
+        "text": "Trekantsgatan 4, 118 53 Stockholm"
+      }
+    ]
+  },
+  {
+    "id": "sv-007",
+    "language": "sv",
+    "text": "På sjukhuset registrerades av misstag fel personnummer för patienten Sara Blom: 8703128890 istället för 870312-8890 vilket fördröjde provsvaret.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 69,
+        "end": 73,
+        "text": "Sara"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 74,
+        "end": 78,
+        "text": "Blom"
+      },
+      {
+        "id": "e3",
+        "label": "NATIONAL_ID",
+        "start": 80,
+        "end": 90,
+        "text": "8703128890"
+      },
+      {
+        "id": "e4",
+        "label": "NATIONAL_ID",
+        "start": 104,
+        "end": 115,
+        "text": "870312-8890"
+      }
+    ]
+  },
+  {
+    "id": "sv-008",
+    "language": "sv",
+    "text": "Skolan meddelade att kontaktuppgifterna till vårdnadshavaren Elin Persson saknades efter att hon bytt telefonnummer till 0737 55 44 11.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 61,
+        "end": 65,
+        "text": "Elin"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 66,
+        "end": 73,
+        "text": "Persson"
+      },
+      {
+        "id": "e3",
+        "label": "PHONE",
+        "start": 121,
+        "end": 134,
+        "text": "0737 55 44 11"
+      }
+    ]
+  },
+  {
+    "id": "sv-009",
+    "language": "sv",
+    "text": "När jag kontaktade kundservice hos bredbandsleverantören blev jag ombedd att uppdatera mitt ärende med min epostadress, som var felstavad som jonas.kalrsson@mail.se.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 142,
+        "end": 164,
+        "text": "jonas.kalrsson@mail.se"
+      }
+    ]
+  },
+  {
+    "id": "sv-010",
+    "language": "sv",
+    "text": "Ekonomiavdelningen informerade att fakturan till Anja Rydberg inte kunde skickas eftersom hennes nya adress, Soltorpsvägen 77B, 541 42 Skövde, inte var registrerad.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 49,
+        "end": 53,
+        "text": "Anja"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 54,
+        "end": 61,
+        "text": "Rydberg"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 109,
+        "end": 141,
+        "text": "Soltorpsvägen 77B, 541 42 Skövde"
+      }
+    ]
+  },
+  {
+    "id": "sv-011",
+    "language": "sv",
+    "text": "Personalchefen noterade att Johan Ek inte längre nås på sitt gamla nummer 0704-889900 och bad honom uppdatera kontaktlistan.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 28,
+        "end": 33,
+        "text": "Johan"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 34,
+        "end": 36,
+        "text": "Ek"
+      },
+      {
+        "id": "e3",
+        "label": "PHONE",
+        "start": 74,
+        "end": 85,
+        "text": "0704-889900"
+      }
+    ]
+  },
+  {
+    "id": "sv-012",
+    "language": "sv",
+    "text": "När vi gick igenom ansökan upptäckte vi att personen skrivit in sitt personnummer 20000101-1221 två gånger och dessutom felstavat sitt namn som Lova Henrson.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NATIONAL_ID",
+        "start": 82,
+        "end": 95,
+        "text": "20000101-1221"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 144,
+        "end": 148,
+        "text": "Lova"
+      },
+      {
+        "id": "e3",
+        "label": "NAME",
+        "start": 149,
+        "end": 156,
+        "text": "Henrson"
+      }
+    ]
+  },
+  {
+    "id": "sv-013",
+    "language": "sv",
+    "text": "IT-support kunde inte återställa lösenordet eftersom användaren skrivit fel e-post: malin_ostling@hotmial.com i formuläret.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 84,
+        "end": 109,
+        "text": "malin_ostling@hotmial.com"
+      }
+    ]
+  },
+  {
+    "id": "sv-014",
+    "language": "sv",
+    "text": "Hos Skatteverket registrerades två adresser för samma individ, dels den gamla på Tallgatan 3, 931 32 Skellefteå och dels den nya på Hjortronvägen 14.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 81,
+        "end": 111,
+        "text": "Tallgatan 3, 931 32 Skellefteå"
+      },
+      {
+        "id": "e2",
+        "label": "ADDRESS",
+        "start": 132,
+        "end": 148,
+        "text": "Hjortronvägen 14"
+      }
+    ]
+  },
+  {
+    "id": "sv-015",
+    "language": "sv",
+    "text": "Vid beställningen av arbetskläder angav Tony Grensson av misstag sin privata mailadress tony.grenssn@yahoo.se istället för jobbadressen.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 40,
+        "end": 44,
+        "text": "Tony"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 45,
+        "end": 53,
+        "text": "Grensson"
+      },
+      {
+        "id": "e3",
+        "label": "EMAIL",
+        "start": 88,
+        "end": 109,
+        "text": "tony.grenssn@yahoo.se"
+      }
+    ]
+  },
+  {
+    "id": "sv-016",
+    "language": "sv",
+    "text": "När kommunen skickade ut beslutet returnerades brevet då mottagaren, Majvor Tysk, flyttat från Styrmansgatan 2, 602 34 Norrköping.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 69,
+        "end": 75,
+        "text": "Majvor"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 76,
+        "end": 80,
+        "text": "Tysk"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 95,
+        "end": 129,
+        "text": "Styrmansgatan 2, 602 34 Norrköping"
+      }
+    ]
+  },
+  {
+    "id": "sv-017",
+    "language": "sv",
+    "text": "Arbetsförmedlingen fick in en anmälan där sökanden hade angett personnumret 990404-4490 men glömt att skriva sitt namn, som senare verifierades som Erik Holst.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NATIONAL_ID",
+        "start": 76,
+        "end": 87,
+        "text": "990404-4490"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 148,
+        "end": 152,
+        "text": "Erik"
+      },
+      {
+        "id": "e3",
+        "label": "NAME",
+        "start": 153,
+        "end": 158,
+        "text": "Holst"
+      }
+    ]
+  },
+  {
+    "id": "sv-018",
+    "language": "sv",
+    "text": "Läkaren noterade att patienten, kallad \"Mille\" i journalen men egentligen Mikael Bornehed, lämnat fel nummer: +46 70 884 77 21.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 74,
+        "end": 80,
+        "text": "Mikael"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 81,
+        "end": 89,
+        "text": "Bornehed"
+      },
+      {
+        "id": "e3",
+        "label": "PHONE",
+        "start": 110,
+        "end": 126,
+        "text": "+46 70 884 77 21"
+      }
+    ]
+  },
+  {
+    "id": "sv-019",
+    "language": "sv",
+    "text": "I handläggningssystemet registrerades fel adress för Julia Remstam. Den korrekta var enligt henne själv: Björkvägen 9, 347 91 Alvesta.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 53,
+        "end": 58,
+        "text": "Julia"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 59,
+        "end": 66,
+        "text": "Remstam"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 105,
+        "end": 133,
+        "text": "Björkvägen 9, 347 91 Alvesta"
+      }
+    ]
+  },
+  {
+    "id": "sv-020",
+    "language": "sv",
+    "text": "Vid inskrivningen i vuxenutbildningen skrev eleven Adam Virs, möjligen av stress, sitt nummer som 07x 332 11 09 vilket orsakade oklarheter.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 51,
+        "end": 55,
+        "text": "Adam"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 56,
+        "end": 60,
+        "text": "Virs"
+      },
+      {
+        "id": "e3",
+        "label": "PHONE",
+        "start": 98,
+        "end": 111,
+        "text": "07x 332 11 09"
+      }
+    ]
+  },
+  {
+    "id": "sv-021",
+    "language": "sv",
+    "text": "Kundservice kunde inte hitta kundens tidigare konversation eftersom mejlet kom från en ny adress: selma.hultgren22@gmal.com.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 98,
+        "end": 123,
+        "text": "selma.hultgren22@gmal.com"
+      }
+    ]
+  },
+  {
+    "id": "sv-022",
+    "language": "sv",
+    "text": "När föräldrarna till eleven Stina Olander uppdaterade sina kontaktuppgifter råkade de skriva in Stinas personnummer som 20100202--2233.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 28,
+        "end": 33,
+        "text": "Stina"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 34,
+        "end": 41,
+        "text": "Olander"
+      },
+      {
+        "id": "e3",
+        "label": "NATIONAL_ID",
+        "start": 120,
+        "end": 134,
+        "text": "20100202--2233"
+      }
+    ]
+  },
+  {
+    "id": "sv-023",
+    "language": "sv",
+    "text": "Inom hemtjänsten rapporterades att hembesöket hos Ingrid Fagrell misslyckats då hennes nummer 0723-322 991 inte gick att nå.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 50,
+        "end": 56,
+        "text": "Ingrid"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 57,
+        "end": 64,
+        "text": "Fagrell"
+      },
+      {
+        "id": "e3",
+        "label": "PHONE",
+        "start": 94,
+        "end": 106,
+        "text": "0723-322 991"
+      }
+    ]
+  },
+  {
+    "id": "sv-024",
+    "language": "sv",
+    "text": "När jag skickade in mitt ärende till kommunen fick jag tillbaka ett meddelande att adressen jag angett, Vitsippegränd 42, 165 72 Hässelby, inte gick att verifiera då en siffra saknades först.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 104,
+        "end": 137,
+        "text": "Vitsippegränd 42, 165 72 Hässelby"
+      }
+    ]
+  },
+  {
+    "id": "sv-025",
+    "language": "sv",
+    "text": "På vårdcentralen hade man två journaler för samma patient då hans namn skrivits både som Lennart Fågel och Lennart Fogel. Personnummer 730505-5511 var dock detsamma.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 89,
+        "end": 102,
+        "text": "Lennart Fågel"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 107,
+        "end": 120,
+        "text": "Lennart Fogel"
+      },
+      {
+        "id": "e3",
+        "label": "NATIONAL_ID",
+        "start": 135,
+        "end": 146,
+        "text": "730505-5511"
+      }
+    ]
+  },
+  {
+    "id": "sv-026",
+    "language": "sv",
+    "text": "I en felanmälan till fastighetsägaren uppgav hyresgästen Karin Wåg att hon inte längre nåddes på 08-551 33 12 p.g.a. byte av abonnemang.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 57,
+        "end": 62,
+        "text": "Karin"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 63,
+        "end": 66,
+        "text": "Wåg"
+      },
+      {
+        "id": "e3",
+        "label": "PHONE",
+        "start": 97,
+        "end": 109,
+        "text": "08-551 33 12"
+      }
+    ]
+  },
+  {
+    "id": "sv-027",
+    "language": "sv",
+    "text": "Vid tentamensanmälan angav studenten sitt personnummer som 1999-04-01-9900. Rutinerna krävde dock formatet 199904019900.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NATIONAL_ID",
+        "start": 59,
+        "end": 74,
+        "text": "1999-04-01-9900"
+      },
+      {
+        "id": "e2",
+        "label": "NATIONAL_ID",
+        "start": 107,
+        "end": 119,
+        "text": "199904019900"
+      }
+    ]
+  },
+  {
+    "id": "sv-028",
+    "language": "sv",
+    "text": "Faktureringen stoppades eftersom kundens kontaktadress, Rallarstigen 8, 777 91 Smedjebacken, inte matchade den i företagsregistret sparade uppgiften.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 56,
+        "end": 91,
+        "text": "Rallarstigen 8, 777 91 Smedjebacken"
+      }
+    ]
+  },
+  {
+    "id": "sv-029",
+    "language": "sv",
+    "text": "Läraren skrev felaktigt in eleven Linde Eklunds namn som \"Linda Eklun\" i närvarosystemet och missade även att lägga in personnumret 20110303-9923.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 34,
+        "end": 39,
+        "text": "Linde"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 40,
+        "end": 47,
+        "text": "Eklunds"
+      },
+      {
+        "id": "e3",
+        "label": "NATIONAL_ID",
+        "start": 132,
+        "end": 145,
+        "text": "20110303-9923"
+      }
+    ]
+  },
+  {
+    "id": "sv-030",
+    "language": "sv",
+    "text": "I HR-portalen stod det kvar ett gammalt nummer för medarbetaren Mio Rask: +46 73 992 14 77, vilket gjorde att chefen inte fick tag i honom inför mötet.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 64,
+        "end": 67,
+        "text": "Mio"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 68,
+        "end": 72,
+        "text": "Rask"
+      },
+      {
+        "id": "e3",
+        "label": "PHONE",
+        "start": 74,
+        "end": 90,
+        "text": "+46 73 992 14 77"
+      }
+    ]
+  },
+  {
+    "id": "sv-031",
+    "language": "sv",
+    "text": "En handläggare på socialtjänsten bad mig dubbelkolla uppgifterna kring personen som anmält flytt. I formuläret stod namnet Otto Leijon och en handskriven adress: Kyrkbacken 4, 891 22 Örnsköldsvik, men något stämde inte helt.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 123,
+        "end": 127,
+        "text": "Otto"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 128,
+        "end": 134,
+        "text": "Leijon"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 162,
+        "end": 195,
+        "text": "Kyrkbacken 4, 891 22 Örnsköldsvik"
+      }
+    ]
+  },
+  {
+    "id": "sv-032",
+    "language": "sv",
+    "text": "Till HR skickades ett klagomål om att fel lön betalats ut till medarbetaren Elsa Harnberg. Felet berodde på att hennes registrerade personnummer 8202118899 blivit avklippt i ett av systemen.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 76,
+        "end": 80,
+        "text": "Elsa"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 81,
+        "end": 89,
+        "text": "Harnberg"
+      },
+      {
+        "id": "e3",
+        "label": "NATIONAL_ID",
+        "start": 145,
+        "end": 155,
+        "text": "8202118899"
+      }
+    ]
+  },
+  {
+    "id": "sv-033",
+    "language": "sv",
+    "text": "I ett ärende från elevhälsan noterades att vårdnadshavaren hade skickat sitt telefonnummer 0734 66 55 01 men missat att skriva sitt namn. Senare framkom att det var signerat av föräldern Mikael Hanner.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "PHONE",
+        "start": 91,
+        "end": 104,
+        "text": "0734 66 55 01"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 187,
+        "end": 193,
+        "text": "Mikael"
+      },
+      {
+        "id": "e3",
+        "label": "NAME",
+        "start": 194,
+        "end": 200,
+        "text": "Hanner"
+      }
+    ]
+  },
+  {
+    "id": "sv-034",
+    "language": "sv",
+    "text": "När kommunen skickade ut hyresavier råkade en fil innehålla fel adress. På en av raderna stod felaktigt: Grusvägen 18 B, 271 43 Ystad, trots att hyresgästen egentligen skulle vara registrerad på en annan gata.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 105,
+        "end": 133,
+        "text": "Grusvägen 18 B, 271 43 Ystad"
+      }
+    ]
+  },
+  {
+    "id": "sv-035",
+    "language": "sv",
+    "text": "En kund ringde supporten och bad att vi skulle uppdatera hans kontaktuppgifter. Det visade sig att telefonnumret han skickat in, +46 70 912 44 88, egentligen tillhörde hans fru och hade angetts av misstag.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "PHONE",
+        "start": 129,
+        "end": 145,
+        "text": "+46 70 912 44 88"
+      }
+    ]
+  },
+  {
+    "id": "sv-036",
+    "language": "sv",
+    "text": "På företagets internportal uppstod ett problem när användaren matade in sin e-postadress felaktigt. Det stod martina.welson@@mail.se vilket IT fick korrigera innan hon kunde logga in.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 109,
+        "end": 132,
+        "text": "martina.welson@@mail.se"
+      }
+    ]
+  },
+  {
+    "id": "sv-037",
+    "language": "sv",
+    "text": "Arbetsledaren rapporterade att en anställd, Jonas Gärdh, hade nekats tillgång till byggområdet eftersom identiteten enligt personnumret 19870615-2231 inte matchade uppgifterna i registret.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 44,
+        "end": 49,
+        "text": "Jonas"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 50,
+        "end": 55,
+        "text": "Gärdh"
+      },
+      {
+        "id": "e3",
+        "label": "NATIONAL_ID",
+        "start": 136,
+        "end": 149,
+        "text": "19870615-2231"
+      }
+    ]
+  },
+  {
+    "id": "sv-038",
+    "language": "sv",
+    "text": "Elevadministrationen noterade att de fått in en felaktig adress från vårdnadshavaren. Den angivna adressen var Södra Allén 3, 541 32 Skövde men posten kom i retur flera gånger.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 111,
+        "end": 139,
+        "text": "Södra Allén 3, 541 32 Skövde"
+      }
+    ]
+  },
+  {
+    "id": "sv-039",
+    "language": "sv",
+    "text": "I regionens vårdapp uppstod ett fel som gjorde att patientens kontaktuppgifter blandades ihop. En patients nummer, 0707-44 77 29, dök i stället upp under en helt annan journal.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "PHONE",
+        "start": 115,
+        "end": 128,
+        "text": "0707-44 77 29"
+      }
+    ]
+  },
+  {
+    "id": "sv-040",
+    "language": "sv",
+    "text": "Vid ett samtal med kundtjänst berättade personen att hon tidigare hade registrerat sitt namn fel. Hon sa att det egentligen skulle stå Alma Rönn i profilen men att det blivit ihopslaget till Almarönn.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 135,
+        "end": 139,
+        "text": "Alma"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 140,
+        "end": 144,
+        "text": "Rönn"
+      }
+    ]
+  },
+  {
+    "id": "sv-041",
+    "language": "sv",
+    "text": "En lärare påpekade att e-postlistan hade ett fel där en adress hamnat i fel grupp. Adressen, kersti.lind@edu.se, skulle egentligen kopplas till ett helt annat schema.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 93,
+        "end": 111,
+        "text": "kersti.lind@edu.se"
+      }
+    ]
+  },
+  {
+    "id": "sv-042",
+    "language": "sv",
+    "text": "Kassörskan bad om att få rättat uppgifterna för medlemmen eftersom hennes angivna personnummer 880404-9988 inte längre stämde med medlemsregistret då en tidigare siffra skrivits fel.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NATIONAL_ID",
+        "start": 95,
+        "end": 106,
+        "text": "880404-9988"
+      }
+    ]
+  },
+  {
+    "id": "sv-043",
+    "language": "sv",
+    "text": "I ett internt ärende skrev någon fel efternamn på kollegan. Rapporten listade henne som Sara Lindek istället för rätt namn, Sara Lindekrantz, vilket orsakade problem i personalregistret.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 88,
+        "end": 92,
+        "text": "Sara"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 93,
+        "end": 99,
+        "text": "Lindek"
+      },
+      {
+        "id": "e3",
+        "label": "NAME",
+        "start": 124,
+        "end": 128,
+        "text": "Sara"
+      },
+      {
+        "id": "e4",
+        "label": "NAME",
+        "start": 129,
+        "end": 140,
+        "text": "Lindekrantz"
+      }
+    ]
+  },
+  {
+    "id": "sv-044",
+    "language": "sv",
+    "text": "En ansökan hos kommunen avslogs eftersom adressen som angivits var ofullständig. Den stod som Granitväg 4 men saknade postnummer och ort.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 94,
+        "end": 105,
+        "text": "Granitväg 4"
+      }
+    ]
+  },
+  {
+    "id": "sv-045",
+    "language": "sv",
+    "text": "När löneavdelningen skulle hantera ett intyg saknades underskrift från medarbetaren. Endast ett telefonnummer, 076 221 54 88, fanns angivet och inget namn.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "PHONE",
+        "start": 111,
+        "end": 124,
+        "text": "076 221 54 88"
+      }
+    ]
+  },
+  {
+    "id": "sv-046",
+    "language": "sv",
+    "text": "I rekryteringssystemet laddades ett dokument upp under fel ansökan. Det innehöll kontaktuppgifter till en annan kandidat: Evelina Ros och hennes e-postadress evelina.ros@sample.se.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 122,
+        "end": 129,
+        "text": "Evelina"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 130,
+        "end": 133,
+        "text": "Ros"
+      },
+      {
+        "id": "e3",
+        "label": "EMAIL",
+        "start": 158,
+        "end": 179,
+        "text": "evelina.ros@sample.se"
+      }
+    ]
+  },
+  {
+    "id": "sv-047",
+    "language": "sv",
+    "text": "En tekniker påpekade att en felrapport saknade vem den gällde. Endast ett personnummer 19990101-7744 fanns kvar efter en felskrivning som raderat resten av informationen.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NATIONAL_ID",
+        "start": 87,
+        "end": 100,
+        "text": "19990101-7744"
+      }
+    ]
+  },
+  {
+    "id": "sv-048",
+    "language": "sv",
+    "text": "När sjuksköterskan skrev sin notering uppgav patienten att han hette Leo Wessman och bodde på adressen Bergsliden 2, 903 22 Umeå. Informationen registrerades utan problem.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 69,
+        "end": 72,
+        "text": "Leo"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 73,
+        "end": 80,
+        "text": "Wessman"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 103,
+        "end": 128,
+        "text": "Bergsliden 2, 903 22 Umeå"
+      }
+    ]
+  },
+  {
+    "id": "sv-049",
+    "language": "sv",
+    "text": "En automatiserad rapport innehöll ett fel där e-postadresser listades dubbelt. Bland posterna fanns adressen simon.bolter77@mailbox.se som av misstag också tagits med i en annan tabell.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 109,
+        "end": 134,
+        "text": "simon.bolter77@mailbox.se"
+      }
+    ]
+  },
+  {
+    "id": "sv-050",
+    "language": "sv",
+    "text": "I internregistret noterades att ett felaktigt namn använts vid utskick: istället för rätt person, Nora Eklöf, hade systemet hämtat en gammal post med bara initialerna N.E.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 98,
+        "end": 102,
+        "text": "Nora"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 103,
+        "end": 108,
+        "text": "Eklöf"
+      }
+    ]
+  }

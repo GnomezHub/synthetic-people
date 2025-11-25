@@ -1,0 +1,877 @@
+[
+  {
+    "id": "sv-001",
+    "language": "sv",
+    "text": "När handläggaren på Skatteverket ringde stod det att ansökan skickats av Elin Rask. Hennes nummer är 0722 33 44 55.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 73,
+        "end": 77,
+        "text": "Elin"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 78,
+        "end": 82,
+        "text": "Rask"
+      },
+      {
+        "id": "e3",
+        "label": "PHONE",
+        "start": 101,
+        "end": 114,
+        "text": "0722 33 44 55"
+      }
+    ]
+  },
+  {
+    "id": "sv-002",
+    "language": "sv",
+    "text": "IT-support fick ett ärende där användaren skickat in sitt telefonnummer 0722 55 44 90 och sin adress: Lillgatan 7, 702 12 Örebro.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "PHONE",
+        "start": 72,
+        "end": 85,
+        "text": "0722 55 44 90"
+      },
+      {
+        "id": "e2",
+        "label": "ADDRESS",
+        "start": 102,
+        "end": 128,
+        "text": "Lillgatan 7, 702 12 Örebro"
+      }
+    ]
+  },
+  {
+    "id": "sv-003",
+    "language": "sv",
+    "text": "I en rapport från vårdcentralen stod att patienten Mia Holmberg med personnummer 19781212-8811 skulle på återbesök.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 51,
+        "end": 54,
+        "text": "Mia"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 55,
+        "end": 63,
+        "text": "Holmberg"
+      },
+      {
+        "id": "e3",
+        "label": "NATIONAL_ID",
+        "start": 81,
+        "end": 94,
+        "text": "19781212-8811"
+      }
+    ]
+  },
+  {
+    "id": "sv-004",
+    "language": "sv",
+    "text": "Kommunens utskick innehöll ett fel där adressen Laxvägen 9, 524 32 Herrljunga registrerats felaktigt, kontaktnumret 0733-22 11 00 saknades.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 48,
+        "end": 77,
+        "text": "Laxvägen 9, 524 32 Herrljunga"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 116,
+        "end": 129,
+        "text": "0733-22 11 00"
+      }
+    ]
+  },
+  {
+    "id": "sv-005",
+    "language": "sv",
+    "text": "En lärare rapporterade att e-postadressen sara.lindgren@edu.se inte gick att nå och att kontakt via telefon 0720-11 22 33 inte fungerade.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 42,
+        "end": 62,
+        "text": "sara.lindgren@edu.se"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 108,
+        "end": 121,
+        "text": "0720-11 22 33"
+      }
+    ]
+  },
+  {
+    "id": "sv-006",
+    "language": "sv",
+    "text": "När kunden kontaktade oss uppgav han att numret +46 76 123 45 67 var fel och att hans adress på Björkgatan 3, 903 21 Umeå behövde korrigeras.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "PHONE",
+        "start": 48,
+        "end": 64,
+        "text": "+46 76 123 45 67"
+      },
+      {
+        "id": "e2",
+        "label": "ADDRESS",
+        "start": 96,
+        "end": 121,
+        "text": "Björkgatan 3, 903 21 Umeå"
+      }
+    ]
+  },
+  {
+    "id": "sv-007",
+    "language": "sv",
+    "text": "Patienten Oskar Palm flyttade nyligen till adressen Måsgränd 12, 903 33 Umeå och kan kontaktas på 0732-11 22 33.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 10,
+        "end": 15,
+        "text": "Oskar"
+      },
+      {
+        "id": "e2",
+        "label": "NAME",
+        "start": 16,
+        "end": 20,
+        "text": "Palm"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 52,
+        "end": 76,
+        "text": "Måsgränd 12, 903 33 Umeå"
+      },
+      {
+        "id": "e4",
+        "label": "PHONE",
+        "start": 98,
+        "end": 111,
+        "text": "0732-11 22 33"
+      }
+    ]
+  },
+  {
+    "id": "sv-008",
+    "language": "sv",
+    "text": "HR-avdelningen fick ett mejl från en medarbetare med personnummer 19800101-5567 och mejladressen anna.ek@firm.se.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NATIONAL_ID",
+        "start": 66,
+        "end": 79,
+        "text": "19800101-5567"
+      },
+      {
+        "id": "e2",
+        "label": "EMAIL",
+        "start": 97,
+        "end": 112,
+        "text": "anna.ek@firm.se"
+      }
+    ]
+  },
+  {
+    "id": "sv-009",
+    "language": "sv",
+    "text": "Kundservice fick in reklamation där avsändaren Emma angav sin adress som Tallvägen 4, 523 22 Herrljunga.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 47,
+        "end": 51,
+        "text": "Emma"
+      },
+      {
+        "id": "e2",
+        "label": "ADDRESS",
+        "start": 73,
+        "end": 103,
+        "text": "Tallvägen 4, 523 22 Herrljunga"
+      }
+    ]
+  },
+  {
+    "id": "sv-010",
+    "language": "sv",
+    "text": "En anställd klagade över att adressen Verkstadsgatan 2, 652 21 Karlstad var felregistrerad och telefonnumret 0734-22 33 44 saknades.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 38,
+        "end": 71,
+        "text": "Verkstadsgatan 2, 652 21 Karlstad"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 109,
+        "end": 122,
+        "text": "0734-22 33 44"
+      }
+    ]
+  },
+  {
+        "id": "sv-051",
+        "language": "sv",
+        "text": "Hej Kalle Andersson (841010-1212)! Du glömde ditt id-kort på kontoret igår. Din hemadress är Storgatan 15 A, 111 22 Sthlm. Ring mig på 0701112233 så löser vi det. Ang. leveransen måste vi ha dina nya koordinater senast fre.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NAME",
+                "start": 4,
+                "end": 19,
+                "text": "Kalle Andersson"
+            },
+            {
+                "id": "e2",
+                "label": "NATIONAL_ID",
+                "start": 21,
+                "end": 32,
+                "text": "841010-1212"
+            },
+            {
+                "id": "e3",
+                "label": "ADDRESS",
+                "start": 93,
+                "end": 121,
+                "text": "Storgatan 15 A, 111 22 Sthlm"
+            },
+            {
+                "id": "e4",
+                "label": "PHONE",
+                "start": 135,
+                "end": 145,
+                "text": "0701112233"
+            }
+        ]
+    },
+    {
+        "id": "sv-052",
+        "language": "sv",
+        "text": "Patient: Elin Gustafsson, p-nr: 900505 4444. Kl. 14:00 tisdag är det dags för återbesök. Sjuksköterska Maria nås på mobil 08-9876543. Glöm inte medicinerna. Brev skickas till hennes adress: Björkgatan 3, 222 33 Lund. Hör av dig vid frågor.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NAME",
+                "start": 9,
+                "end": 24,
+                "text": "Elin Gustafsson"
+            },
+            {
+                "id": "e2",
+                "label": "NATIONAL_ID",
+                "start": 32,
+                "end": 43,
+                "text": "900505 4444"
+            },
+            {
+                "id": "e3",
+                "label": "PHONE",
+                "start": 122,
+                "end": 132,
+                "text": "08-9876543"
+            },
+            {
+                "id": "e4",
+                "label": "ADDRESS",
+                "start": 190,
+                "end": 215,
+                "text": "Björkgatan 3, 222 33 Lund"
+            }
+        ]
+    },
+    {
+        "id": "sv-053",
+        "language": "sv",
+        "text": "Faktura för konsulttjänster. Organisation 5567891234. Skickas till: Per Svensson, Kaptensgatan 10, 211 00 Malmö. Betalning 30 dagar. Kontakta ekonomi om du har frågor om fakturan på mejl per.s@firman.com. Tel: 046-55555.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NATIONAL_ID",
+                "start": 42,
+                "end": 52,
+                "text": "5567891234"
+            },
+            {
+                "id": "e2",
+                "label": "NAME",
+                "start": 68,
+                "end": 80,
+                "text": "Per Svensson"
+            },
+            {
+                "id": "e3",
+                "label": "ADDRESS",
+                "start": 82,
+                "end": 111,
+                "text": "Kaptensgatan 10, 211 00 Malmö"
+            },
+            {
+                "id": "e4",
+                "label": "EMAIL",
+                "start": 187,
+                "end": 203,
+                "text": "per.s@firman.com"
+            },
+            {
+                "id": "e5",
+                "label": "PHONE",
+                "start": 210,
+                "end": 219,
+                "text": "046-55555"
+            }
+        ]
+    },
+    {
+        "id": "sv-054",
+        "language": "sv",
+        "text": "Lönespec. för dec. finns på intranätet. Frågor rörande utbet. kan ställas till David Olsson. Han nås via mail david.olsson@foretaget.com (OBS: nytt domän!) eller på internt nr 7890. Glöm inte ditt p-nr: 751212-0000 för systeminloggning.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NAME",
+                "start": 79,
+                "end": 91,
+                "text": "David Olsson"
+            },
+            {
+                "id": "e2",
+                "label": "EMAIL",
+                "start": 110,
+                "end": 136,
+                "text": "david.olsson@foretaget.com"
+            },
+            {
+                "id": "e3",
+                "label": "PHONE",
+                "start": 176,
+                "end": 180,
+                "text": "7890"
+            },
+            {
+                "id": "e4",
+                "label": "NATIONAL_ID",
+                "start": 203,
+                "end": 214,
+                "text": "751212-0000"
+            }
+        ]
+    },
+    {
+        "id": "sv-055",
+        "language": "sv",
+        "text": "Tack för felanmälan 45690 angående nätverket. Vi kontaktar dig, Adam Lindgren, på 073 123 45 67, så snart teknikern är på plats. Det är viktigt att vi kan nå dig. Vårt kontor finns på Teknikringen 4 B, 752 30 Uppsala.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NAME",
+                "start": 64,
+                "end": 77,
+                "text": "Adam Lindgren"
+            },
+            {
+                "id": "e2",
+                "label": "PHONE",
+                "start": 82,
+                "end": 95,
+                "text": "073 123 45 67"
+            },
+            {
+                "id": "e3",
+                "label": "ADDRESS",
+                "start": 184,
+                "end": 216,
+                "text": "Teknikringen 4 B, 752 30 Uppsala"
+            }
+        ]
+    },
+    {
+        "id": "sv-056",
+        "language": "sv",
+        "text": "Ang. ansökan. Namn: Johan Hellström. Vi behöver p-nr 750619 1212 för verifiering (är du säker på att det stämmer?). Vänligen maila till info@skatteverket.se eller ring 0771-567567. Skickas till: Kungsgatan 12, 753 02 Upps.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NAME",
+                "start": 20,
+                "end": 35,
+                "text": "Johan Hellström"
+            },
+            {
+                "id": "e2",
+                "label": "NATIONAL_ID",
+                "start": 53,
+                "end": 64,
+                "text": "750619 1212"
+            },
+            {
+                "id": "e3",
+                "label": "EMAIL",
+                "start": 136,
+                "end": 156,
+                "text": "info@skatteverket.se"
+            },
+            {
+                "id": "e4",
+                "label": "PHONE",
+                "start": 168,
+                "end": 179,
+                "text": "0771-567567"
+            },
+            {
+                "id": "e5",
+                "label": "ADDRESS",
+                "start": 195,
+                "end": 221,
+                "text": "Kungsgatan 12, 753 02 Upps"
+            }
+        ]
+    },
+    {
+        "id": "sv-057",
+        "language": "sv",
+        "text": "Journalutdrag: Sara Månsson, född 19901010-4321. Uppsökte VC med smärta i höger knä. Kontakt: 018-123456. Hemadress: Stortorget 5, 753 02 Uppsala. Behöver tid för fysioterapi. Kompletterande info skickas till sara.m@vardcentralen.se.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NAME",
+                "start": 15,
+                "end": 27,
+                "text": "Sara Månsson"
+            },
+            {
+                "id": "e2",
+                "label": "NATIONAL_ID",
+                "start": 34,
+                "end": 47,
+                "text": "19901010-4321"
+            },
+            {
+                "id": "e3",
+                "label": "PHONE",
+                "start": 94,
+                "end": 104,
+                "text": "018-123456"
+            },
+            {
+                "id": "e4",
+                "label": "ADDRESS",
+                "start": 117,
+                "end": 145,
+                "text": "Stortorget 5, 753 02 Uppsala"
+            },
+            {
+                "id": "e5",
+                "label": "EMAIL",
+                "start": 209,
+                "end": 232,
+                "text": "sara.m@vardcentralen.se"
+            }
+        ]
+    },
+    {
+        "id": "sv-058",
+        "language": "sv",
+        "text": "Betala skolavgift senast 2024-09-01. För frågor, kontakta ekonomin på skolan. Vi har David Ström som ansvarig. Han nås på david.strom@skola.edu. Tel: 013 998877. Vår adress: Skolvägen 5, 582 00 Linköping. Tack för din uppmärksamhet.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NAME",
+                "start": 85,
+                "end": 96,
+                "text": "David Ström"
+            },
+            {
+                "id": "e2",
+                "label": "EMAIL",
+                "start": 122,
+                "end": 143,
+                "text": "david.strom@skola.edu"
+            },
+            {
+                "id": "e3",
+                "label": "PHONE",
+                "start": 150,
+                "end": 160,
+                "text": "013 998877"
+            },
+            {
+                "id": "e4",
+                "label": "ADDRESS",
+                "start": 174,
+                "end": 203,
+                "text": "Skolvägen 5, 582 00 Linköping"
+            }
+        ]
+    },
+    {
+        "id": "sv-059",
+        "language": "sv",
+        "text": "Systeminloggning. Ditt personnummer 7705181010 är nu din temporära inloggning. Endast behörig personal (typ Camilla Ek) kommer att se detta. Ring oss på +46 70 000 11 22 för verifiering. Din bostadsadress är Äppelgatan 8, 123 45 Stockholm.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NATIONAL_ID",
+                "start": 36,
+                "end": 46,
+                "text": "7705181010"
+            },
+            {
+                "id": "e2",
+                "label": "NAME",
+                "start": 108,
+                "end": 118,
+                "text": "Camilla Ek"
+            },
+            {
+                "id": "e3",
+                "label": "PHONE",
+                "start": 153,
+                "end": 169,
+                "text": "+46 70 000 11 22"
+            },
+            {
+                "id": "e4",
+                "label": "ADDRESS",
+                "start": 208,
+                "end": 238,
+                "text": "Äppelgatan 8, 123 45 Stockholm"
+            }
+        ]
+    },
+    {
+        "id": "sv-060",
+        "language": "sv",
+        "text": "Angående din anställning, Eva Anka. Kontraktsändringen skickas till eva.anka@jobbet.nu (glömde du byta domän?). För att diskutera detaljer, boka tid med HR-chef Karl Nordin. Han sitter på Lilla Torg 1, Malmö. Ring honom på 070-912 31 23.",
+        "gold_entities": [
+            {
+                "id": "e1",
+                "label": "NAME",
+                "start": 26,
+                "end": 34,
+                "text": "Eva Anka"
+            },
+            {
+                "id": "e2",
+                "label": "EMAIL",
+                "start": 68,
+                "end": 86,
+                "text": "eva.anka@jobbet.nu"
+            },
+            {
+                "id": "e3",
+                "label": "NAME",
+                "start": 161,
+                "end": 172,
+                "text": "Karl Nordin"
+            },
+            {
+                "id": "e4",
+                "label": "ADDRESS",
+                "start": 188,
+                "end": 207,
+                "text": "Lilla Torg 1, Malmö"
+            },
+            {
+                "id": "e5",
+                "label": "PHONE",
+                "start": 223,
+                "end": 236,
+                "text": "070-912 31 23"
+            }
+        ]
+    },
+    {
+    "id": "sv-151",
+    "language": "sv",
+    "text": "HR meddelar att löneutbetalning för Erik Svensson sker till adress Almvägen 5, 222 33 Lund. Vid frågr ring 0701234567 snarast.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 36,
+        "end": 49,
+        "text": "Erik Svensson"
+      },
+      {
+        "id": "e2",
+        "label": "ADDRESS",
+        "start": 67,
+        "end": 90,
+        "text": "Almvägen 5, 222 33 Lund"
+      },
+      {
+        "id": "e3",
+        "label": "PHONE",
+        "start": 107,
+        "end": 117,
+        "text": "0701234567"
+      }
+    ]
+  },
+  {
+    "id": "sv-152",
+    "language": "sv",
+    "text": "Patientjournal: Besök av Maria Lind den 4 april. Telefonnummer: +46 31-987654 och adress: Storgatan 3, 411 02 Göteborg.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 25,
+        "end": 35,
+        "text": "Maria Lind"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 64,
+        "end": 77,
+        "text": "+46 31-987654"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 90,
+        "end": 118,
+        "text": "Storgatan 3, 411 02 Göteborg"
+      }
+    ]
+  },
+  {
+    "id": "sv-153",
+    "language": "sv",
+    "text": "IT-support har registrerat ett ärende för användaren peter.johansson@firma.se. Vänligen ring 046-12 34 56 om problemet kvarstår.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 53,
+        "end": 77,
+        "text": "peter.johansson@firma.se"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 93,
+        "end": 105,
+        "text": "046-12 34 56"
+      }
+    ]
+  },
+  {
+    "id": "sv-154",
+    "language": "sv",
+    "text": "Påminnelse skickad till Johan Persson, personnummer 850101-1234, angående kvarskatt. Adress: Ekbacken 7A, 41104 Göteborg.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 24,
+        "end": 37,
+        "text": "Johan Persson"
+      },
+      {
+        "id": "e2",
+        "label": "NATIONAL_ID",
+        "start": 52,
+        "end": 63,
+        "text": "850101-1234"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 93,
+        "end": 120,
+        "text": "Ekbacken 7A, 41104 Göteborg"
+      }
+    ]
+  },
+  {
+    "id": "sv-155",
+    "language": "sv",
+    "text": "Skolan har kontaktat vårdnadshavaren Lisa Andersson på telefon 08 765 43 21. Barnet är folkbokfört på Vintervägen 10, 903 33 Umeå.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 37,
+        "end": 51,
+        "text": "Lisa Andersson"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 63,
+        "end": 75,
+        "text": "08 765 43 21"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 102,
+        "end": 129,
+        "text": "Vintervägen 10, 903 33 Umeå"
+      }
+    ]
+  },
+  {
+    "id": "sv-156",
+    "language": "sv",
+    "text": "Fakturaunderlag för konsulten Ola Wallin är klart. Kontakta ekonomi på 076-987 65 43 eller besök oss på Ringvägen 22, 118 53 Stockholm.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 30,
+        "end": 40,
+        "text": "Ola Wallin"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 71,
+        "end": 84,
+        "text": "076-987 65 43"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 104,
+        "end": 134,
+        "text": "Ringvägen 22, 118 53 Stockholm"
+      }
+    ]
+  },
+  {
+    "id": "sv-157",
+    "language": "sv",
+    "text": "Vaccinationsbrev skickas till Karin Nilsson, 19751230-4567. Önskar fortsättningsvis e-postkontakt på karin.n@health.se.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 30,
+        "end": 43,
+        "text": "Karin Nilsson"
+      },
+      {
+        "id": "e2",
+        "label": "NATIONAL_ID",
+        "start": 45,
+        "end": 58,
+        "text": "19751230-4567"
+      },
+      {
+        "id": "e3",
+        "label": "EMAIL",
+        "start": 101,
+        "end": 118,
+        "text": "karin.n@health.se"
+      }
+    ]
+  },
+  {
+    "id": "sv-158",
+    "language": "sv",
+    "text": "Skatteverket behöver uppdatera adress för Per Holm. Nuvarande adress är Gamla vägen 4, 504 30 Borås. Logga in på Mina sidor.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 42,
+        "end": 50,
+        "text": "Per Holm"
+      },
+      {
+        "id": "e2",
+        "label": "ADDRESS",
+        "start": 72,
+        "end": 99,
+        "text": "Gamla vägen 4, 504 30 Borås"
+      }
+    ]
+  },
+  {
+    "id": "sv-159",
+    "language": "sv",
+    "text": "Ekonomiavdelningen nås via telefonnummer 040-12 34 56 eller e-post ekonomi@företag.se enligt ansvarig chef Eva Berg.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "PHONE",
+        "start": 41,
+        "end": 53,
+        "text": "040-12 34 56"
+      },
+      {
+        "id": "e2",
+        "label": "EMAIL",
+        "start": 67,
+        "end": 85,
+        "text": "ekonomi@företag.se"
+      },
+      {
+        "id": "e3",
+        "label": "NAME",
+        "start": 107,
+        "end": 115,
+        "text": "Eva Berg"
+      }
+    ]
+  },
+  {
+    "id": "sv-160",
+    "language": "sv",
+    "text": "Regionens vårdcentral meddelar att tiden för patienten Sven Larsson är bokad. Kontakt uppges som 0723-45 67 89 och adress Tallgatan 9, 214 32 Malmö.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 55,
+        "end": 67,
+        "text": "Sven Larsson"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 97,
+        "end": 110,
+        "text": "0723-45 67 89"
+      },
+      {
+        "id": "e3",
+        "label": "ADDRESS",
+        "start": 122,
+        "end": 147,
+        "text": "Tallgatan 9, 214 32 Malmö"
+      }
+    ]
+  }
+]
