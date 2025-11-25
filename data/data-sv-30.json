@@ -8,18 +8,11 @@
         "id": "e1",
         "label": "NAME",
         "start": 73,
-        "end": 77,
-        "text": "Elin"
+        "end": 83,
+        "text": "Elin Rask"
       },
       {
         "id": "e2",
-        "label": "NAME",
-        "start": 78,
-        "end": 82,
-        "text": "Rask"
-      },
-      {
-        "id": "e3",
         "label": "PHONE",
         "start": 101,
         "end": 114,
@@ -57,18 +50,11 @@
         "id": "e1",
         "label": "NAME",
         "start": 51,
-        "end": 54,
-        "text": "Mia"
+        "end": 63,
+        "text": "Mia Holmberg"
       },
       {
         "id": "e2",
-        "label": "NAME",
-        "start": 55,
-        "end": 63,
-        "text": "Holmberg"
-      },
-      {
-        "id": "e3",
         "label": "NATIONAL_ID",
         "start": 81,
         "end": 94,
@@ -148,25 +134,18 @@
         "id": "e1",
         "label": "NAME",
         "start": 10,
-        "end": 15,
-        "text": "Oskar"
+        "end": 20,
+        "text": "Oskar Palm"
       },
       {
         "id": "e2",
-        "label": "NAME",
-        "start": 16,
-        "end": 20,
-        "text": "Palm"
-      },
-      {
-        "id": "e3",
         "label": "ADDRESS",
         "start": 52,
         "end": 76,
         "text": "Måsgränd 12, 903 33 Umeå"
       },
       {
-        "id": "e4",
+        "id": "e3",
         "label": "PHONE",
         "start": 98,
         "end": 111,
