@@ -1,0 +1,107 @@
+[
+  {
+    "id": "sv-001",
+    "language": "sv",
+    "text": "När handläggaren på Skatteverket ringde stod det att ansökan skickats av Elin Rask. Hennes nummer är 0722 33 44 55.",
+    "predicted_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 73,
+        "end": 82,
+        "text": "Elin Rask"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 101,
+        "end": 114,
+        "text": "0722 33 44 55"
+      }
+    ]
+  },
+  {
+    "id": "sv-002",
+    "language": "sv",
+    "text": "IT-support fick ett ärende där användaren skickat in sitt telefonnummer 0722 55 44 90 och sin adress: Lillgatan 7, 702 12 Örebro.",
+    "predicted_entities": [
+      {
+        "id": "e1",
+        "label": "PHONE",
+        "start": 72,
+        "end": 85,
+        "text": "0722 55 44 90"
+      },
+      {
+        "id": "e2",
+        "label": "ADDRESS",
+        "start": 102,
+        "end": 128,
+        "text": "Lillgatan 7, 702 12 Örebro"
+      }
+    ]
+  },
+  {
+    "id": "sv-003",
+    "language": "sv",
+    "text": "I en rapport från vårdcentralen stod att patienten Mia Holmberg med personnummer 19781212-8811 skulle på återbesök.",
+    "predicted_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 51,
+        "end": 63,
+        "text": "Mia Holmberg"
+      },
+      {
+        "id": "e2",
+        "label": "NATIONAL_ID",
+        "start": 81,
+        "end": 94,
+        "text": "19781212-8811"
+      }
+    ]
+  },
+  {
+    "id": "sv-004",
+    "language": "sv",
+    "text": "Kommunens utskick innehöll ett fel där adressen Laxvägen 9, 524 32 Herrljunga registrerats felaktigt, kontaktnumret 0733-22 11 00 saknades.",
+    "predicted_entities": [
+      {
+        "id": "e1",
+        "label": "ADDRESS",
+        "start": 48,
+        "end": 77,
+        "text": "Laxvägen 9, 524 32 Herrljunga"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 116,
+        "end": 129,
+        "text": "0733-22 11 00"
+      }
+    ]
+  },
+  {
+    "id": "sv-005",
+    "language": "sv",
+    "text": "En lärare rapporterade att e-postadressen sara.lindgren@edu.se inte gick att nå och att kontakt via telefon 0720-11 22 33 inte fungerade.",
+    "predicted_entities": [
+      {
+        "id": "e1",
+        "label": "EMAIL",
+        "start": 42,
+        "end": 62,
+        "text": "sara.lindgren@edu.se"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 108,
+        "end": 121,
+        "text": "0720-11 22 33"
+      }
+    ]
+  }
+]
