@@ -2,159 +2,93 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <title>Ollama NER Bearbetning</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GDPR Entity Extractor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        #status-log { 
-            border: 1px solid #ccc; 
-            padding: 10px; 
-            height: 300px; 
-            overflow-y: scroll; 
-            background: #f4f4f4;
+        #log-window {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            height: 400px;
+            overflow-y: scroll;
+            border-radius: 5px;
             white-space: pre-wrap;
-            margin-top: 15px;
         }
-        .success { color: green; font-weight: bold; }
-        .error { color: red; font-weight: bold; }
-        .warning { color: orange; }
-        .info { color: gray; }
-        button:disabled { background-color: #ddd; cursor: not-allowed; }
     </style>
 </head>
-<body>
-    <h1>NER Bearbetning med Ollama</h1>
-    <p>Kör NER-extraktion på filen <code>{{ config.INPUT_FILE }}</code> med modellen <code>{{ config.MODEL_NAME }}</code>.</p>
-    
-    <button id="startButton">Starta Bearbetning</button>
-    
-    <h2>Statusfält:</h2>
-    <pre id="status-log"></pre>
+<body class="bg-light">
 
-    <script>
-        const startButton = document.getElementById('startButton');
-        const statusLog = document.getElementById('status-log');
-        let eventSource = null;
-        // FLAGGA: Håller koll på om servern har signalerat att processen är klar.
-        let is_done_by_server = false; 
-
-        // Funktion för att uppdatera loggfältet
-        function appendToLog(message, level) {
-            const entry = document.createElement('div');
-            entry.textContent = message;
-            // Säkerställer att level alltid är en sträng (t.ex. ERROR, INFO)
-            entry.className = (level || 'INFO').toLowerCase();
-            statusLog.appendChild(entry);
-            // Scrolla ner automatiskt
-            statusLog.scrollTop = statusLog.scrollHeight;
-        }
-
-        // Kontrollerar status vid sidladdning
-        async function checkStatus() {
-            try {
-                const response = await fetch('/is_running');
-                const data = await response.json();
-                if (data.is_running) {
-                    startButton.disabled = true;
-                    startButton.textContent = 'Bearbetning pågår...';
-                    startStreaming();
-                } else {
-                    startButton.disabled = false;
-                    startButton.textContent = 'Starta Bearbetning';
-                }
-            } catch (error) {
-                appendToLog("Kunde inte ansluta till serverns status-API.", "ERROR");
-            }
-        }
-
-        // Startar realtidsströmmen (Server-Sent Events)
-        function startStreaming() {
-            // Förhindra dubbel anslutning
-            if (eventSource) {
-                eventSource.close();
-            }
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3>GDPR Entity Extractor (Oh lala mama, it's the Ollama version)</h3>
+        </div>
+        <div class="card-body">
             
-            is_done_by_server = false; // Återställ flaggan vid ny start
-
-            eventSource = new EventSource("/status_stream");
-
-            eventSource.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                
-                if (data.log === "__END__") {
-                    // Steg 1: Markera att processen är avslutad av servern
-                    is_done_by_server = true; 
-
-                    // Processen är avslutad
-                    appendToLog("Bearbetning avslutad. Resultat sparat.", "SUCCESS");
-                    startButton.disabled = false;
-                    startButton.textContent = 'Starta Bearbetning (Klar)';
-                    eventSource.close();
-                    eventSource = null;
-                    return;
-                }
-                
-                const message = data.log;
-                // Extrahera loggnivån från meddelandet, t.ex. "[ERROR]", "[WARNING]", "[INFO]"
-                let level = "INFO";
-                const match = message.match(/^\[(ERROR|WARNING|SUCCESS|INFO)\]/);
-                if (match) {
-                    level = match[1];
-                }
-                
-                appendToLog(message, level);
-            };
-
-            eventSource.onerror = function(err) {
-                console.error("EventSource failed:", err);
-                
-                // Steg 2: Fånga felet. Stäng eventuellt anslutningen för att stoppa automatisk återanslutning 
-                // OM servern redan signalerat att den är klar.
-                if (is_done_by_server) {
-                    // Om servern har signalerat __END__, stäng anslutningen explicit för att stoppa loopen
-                    if (eventSource) {
-                        eventSource.close();
-                        eventSource = null;
-                    }
-                    startButton.disabled = false;
-                    startButton.textContent = 'Starta Bearbetning (Klar)';
-                } else {
-                    // Om processen fortfarande borde vara igång, logga ett nätverksfel
-                    appendToLog("Anslutning avbröts. Försöker återansluta...", "WARNING");
-                    // Webbläsaren hanterar återanslutning automatiskt här.
-                }
-            };
+            <p>Ladda upp din JSON-fil med data för att starta extraheringen.</p>
             
-            // Logga start av streamingen
-            appendToLog("Realtidsstatus aktiverad...", "INFO");
-        }
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="fileInput" class="form-label">Välj källfil (.json)</label>
+                    <input class="form-control" type="file" id="fileInput" name="file" accept=".json" required>
+                </div>
+                <button type="submit" class="btn btn-success" id="startBtn">Starta Process</button>
+            </form>
 
-        // Hanterare för knappen
-        startButton.addEventListener('click', async () => {
-            startButton.disabled = true;
-            statusLog.innerHTML = ''; // Rensa gamla loggar
-            appendToLog("Skickar begäran om att starta bearbetning...", "INFO");
-            
-            try {
-                const response = await fetch('/start_process', { method: 'POST' });
-                const data = await response.json();
+            <hr class="my-4">
+
+            <h5>Output Logg:</h5>
+            <div id="log-window">Inväntar start...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('uploadForm');
+    const logWindow = document.getElementById('log-window');
+    const startBtn = document.getElementById('startBtn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        startBtn.disabled = true;
+        startBtn.innerText = "Körs...";
+        logWindow.innerText = "Initierar...\n";
+        
+        const formData = new FormData(form);
+
+        try {
+            // Start fetch-request
+            const response = await fetch('/run', {
+                method: 'POST',
+                body: formData
+            });
+
+            // Read the stream
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
                 
-                if (response.ok) {
-                    startButton.textContent = 'Bearbetning pågår...';
-                    startStreaming();
-                } else {
-                    appendToLog(`Kunde inte starta: ${data.message}`, "ERROR");
-                    startButton.disabled = false;
-                    startButton.textContent = 'Starta Bearbetning';
-                }
-            } catch (error) {
-                appendToLog(`Nätverksfel vid start: ${error}`, "ERROR");
-                startButton.disabled = false;
-                startButton.textContent = 'Starta Bearbetning';
+                // decode the chunks and add to the log
+                const text = decoder.decode(value);
+                logWindow.innerText += text;
+                
+                // Scrolla to the last thingylingy dingy stringy
+                logWindow.scrollTop = logWindow.scrollHeight;
             }
-        });
+        } catch (error) {
+            logWindow.innerText += `\n\nETT FEL UPPSTOD: ${error}`;
+        } finally {
+            startBtn.disabled = false;
+            startBtn.innerText = "Starta Process";
+        }
+    });
+</script>
 
-        // Kör statuskontroll vid laddning
-        checkStatus();
-    </script>
 </body>
 </html>
