@@ -1,266 +1,263 @@
-"""
-Läser in json filen angiven i variabeln INPUT_FILE. Använder modellen angiven i MODEL_NAME
-med instruktionerna i SYSTEM_PROMPT för varje textsnutt i json filen. 
-Ett output objekt skapas med all innehåll kopierad från input json filen, förutom entiteterna som fås av modellen
-Entiteterna matchas med texten för att se till att indexerna är rätt, är de inte det korrigeras de.
-(indexerna från modellen används för att korrigera rätt ord vid flera förekomster)
-resultatet sparas under filnamnet som anges av OUTPUT_FILE
-
-"""
-#RÄTT INDEX-ÅTGÄRD - UPPDATERAD MED "NÄRMASTE INDEX"-LOGIK
-
 import ollama
 import json
 import sys
 import os
 
-# --- Konfiguration ---
-MODEL_NAME = "gemma3:4b"  
-INPUT_FILE = "data-sv-30.json"  #
-OUTPUT_FILE = "predictions.json"
+MODEL_NAME = "gemma3:4b"
 
-# --- System Prompt for the Model ---
-# Systemprompten med instruktionerna
+# Later change this to define files in terminal
+INPUT_FILE = "data-test.json"
+OUTPUT_FILE = "predictions-test.json"
+
+LABEL_IDS = {"1", "2", "3", "4", "5"}
 
 SYSTEM_PROMPT = """
-You are an expert in extracting information (Named Entity Recognition - NER) from Swedish text.
-Your task is to find and extract specific entities from the text provided by the user.
+You are extracting specific entities from text. 
+You must identify ONLY the following labels, and return ONLY their numeric IDs:
 
-You MUST use the **exact** following labels:
-- NAME: A separate or complete name
-- ADDRESS: A street address, postal code, and/or city. It may be incomplete.
-- PHONE: A phone number, in any common format.
-- EMAIL: An email address.
-- NATIONAL_ID: A Swedish personal identity number (personnummer), which may appear in various formats (e.g., YYMMDD-XXXX, YYMMDD XXXX, YYMMDDXXXX).
+1 = NAME  
+2 = PHONE  
+3 = ADDRESS  
+4 = NATIONAL_ID
+5 = EMAIL
 
+INSTRUCTIONS:
+- Read the user text.
+- Find every entity that matches one of the labels above. Do not include any labels that are not present in the list above.
+- For each entity, output EXACTLY ONE LINE, formatted as:
 
-OUTPUT-FORMAT:
-You must respond with **only** a JSON list. Include no explanatory text, no apologies, no comments - only JSON.
-Each object in the list must have the following exact structure:
-{
-  "label": "LABEL_NAME",
-  "text": "the extracted text",
-  "start": start_index_in_text,
-  "end": end_index_in_text
-}
+    <label_id><entity_text>
 
-If you find no entities at all, respond with an empty list: []
+Example text: "När handläggaren på Skatteverket ringde stod det att ansökan skickats av Elin Rask. Hennes nummer är 0722 33 44 55."
+The correct output for this text is:
+
+    1Elin Rask
+    20722 33 44 55
+
+- The EMAIL label must be used for email addresses. They always contain an "@". You have to mark them as EMAIL (5), noting else. Even if they contain one or more names, they have to be marked as EMAIL.
+
+Example: "En lärare rapporterade att e-postadressen sara.lindgren@edu.se inte gick att nå."
+The correct output for this text is:
+
+	5sara.lindgren@edu.se
+
+- Do NOT include commas, colons, JSON, quotes or explanations. Only the label id and entity text.
+- If no entities are found, output an empty string.
+
+Your entire response must consist ONLY of these lines, nothing else.
+
 """
 
 def load_data(filename):
-    """Läser in JSON-datan från en fil."""
-    if not os.path.exists(filename):
-        print(f"FEL: Inputfilen '{filename}' hittades inte.", file=sys.stderr)
-        sys.exit(1)
-        
-    try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        print(f"FEL: Kunde inte avkoda JSON från '{filename}'. Filen kan vara korrupt.", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"FEL vid läsning av fil: {e}", file=sys.stderr)
-        sys.exit(1)
+	"""Read data from a JSON file"""
+	if not os.path.exists(filename):
+		print(f'ERROR: File "{filename}" could not be found.')
+		sys.exit(1) # Interrupt the script
+	
+	try:
+		with open(filename, "r", encoding="utf-8") as f:
+			return json.load(f)
+	
+	except json.JSONDecodeError:
+		print(f'ERROR: JSON could not be decoded from "{filename}"')
+		sys.exit(1)
+		
+	except Exception as e:
+		# Catch any other exception
+		print(f'ERROR: An unexpected error occurred while reading "{filename}": {e}')
+		sys.exit(1)
+
 
 def save_data(filename, data):
-    """Sparar datan till en JSON-fil."""
-    try:
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        print(f"\nResultat sparat till '{filename}'")
-    except IOError as e:
-        print(f"FEL: Kunde inte skriva till filen '{filename}'. Fel: {e}", file=sys.stderr)
+	"""Save data to a JSON file"""
+	try:
+		with open(filename, "w", encoding="utf-8") as f:
+			json.dump(data, f, ensure_ascii=False, indent=2)
+	
+	except IOError as e:
+		print(f'ERROR: Could not write to file "{filename}". Error: {e}')
+	
+	except Exception as e:
+		print(f'ERROR: An unexpected error occurred: {e}')	
 
+def prompt_model(text):
+	"""Prompts the LLM for one document and returns a list of tuples with label id and entity."""
 
-def get_entities_from_model(text_content):
-    """Anropar Ollama-modellen för att extrahera entiteter."""
-    
-    # Användarens prompt är bara den rena texten, system-prompten har alla instruktioner.
-    user_prompt = f"Extract all entities from the following text and respond **only** with the requested JSON list:\n\n{text_content}"
-    
-    try:
-        response = ollama.chat(
-            model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt}
-            ],
-            options={
-                "temperature": 0.1  # Låg temperatur för mer konsekventa JSON-svar
-            }
-        )
-        
-        raw_response = response['message']['content'].strip()
-        
-        # Försök att rensa bort eventuella "markdown" ```json ... ``` som modellen kan lägga till
-        if raw_response.startswith("```json"):
-            raw_response = raw_response[7:]
-        if raw_response.endswith("```"):
-            raw_response = raw_response[:-3]
-        
-        # Försök att parsa JSON
-        entities = json.loads(raw_response)
-        return entities
+	user_prompt = f"Extract all entities from the following text and respond only with the requested entity string:\n\n{text}"
 
-    except json.JSONDecodeError:
-        
-        print("\n--- VARNING: Kunde inte parsa JSON-svar från modellen ---", file=sys.stderr)
-        print(f"Modellens råa svar: {raw_response}", file=sys.stderr)
-        return [] # Returnera en tom lista vid fel
-    except Exception as e:
-        # Detta fångar t.ex. anslutningsfel om 'ollama serve' inte körs
-        print(f"\n--- FEL: Något gick fel vid anrop till Ollama ({e}) ---", file=sys.stderr)
-        print(f"Kontrollera att Ollama-servern körs och att modellen '{MODEL_NAME}' är nedladdad.", file=sys.stderr)
-        return None # Returnera None för att signalera ett allvarligt fel
+	try:
+		response = ollama.chat(
+			model = MODEL_NAME,
+			messages=[
+				{"role": "system", "content": SYSTEM_PROMPT},
+				{"role": "user", "content": user_prompt}
+			],
+			options={
+				"temperature": 0.1
+			}
+		)
 
-def find_all_indices(parent_text, search_text):
-    """Hittar alla startindex för en given textsträng i en text."""
-    indices = []
-    start_index = 0
-    while start_index < len(parent_text):
-        index = parent_text.find(search_text, start_index)
-        if index == -1:
-            break
-        indices.append(index)
-        # Hoppa framåt för att hitta nästa förekomst
-        start_index = index + len(search_text)
-        # Säkerhetsstopp
-        if len(search_text) == 0:
-            start_index += 1
-    return indices
+		raw_response = response['message']['content']
 
-def process_data(input_data):
-    """Itererar genom indatan och bygger upp utdatan, korrigerar index med närmaste-matchningslogik."""
-    output_data = []
-    
-    for i, item in enumerate(input_data):
-        print(f"Bearbetar nod {item.get('id', i+1)}... ", end="")
-        text_to_analyze = item['text']
-        
-        # 1. Få entiteter från modellen
-        model_entities = get_entities_from_model(text_to_analyze)
-        
-        if model_entities is None:
-            print("Avbryter på grund av tidigare fel.")
-            return None # Avbryt hela processen
+	except Exception as e:
+		print(f"ERROR: Model call failed: {e}")
+		return None
 
-        # 2. Förbered för indexkorrigering
-        
-        # Steg A: Hitta alla matchningar i texten för varje unik entitetstext
-        # Vi använder en dictionary för att lagra alla hittade startpositioner
-        all_text_matches = {} 
-        for entity in model_entities:
-            # Kontrollera att vi har en 'text'-nyckel och trimma den
-            if 'text' in entity:
-                trimmed_text = entity['text'].strip()
-                if trimmed_text and trimmed_text not in all_text_matches:
-                    all_text_matches[trimmed_text] = find_all_indices(text_to_analyze, trimmed_text)
-        
-        # Steg B: Håll reda på vilka startindex som har använts (tilldelats)
-        assigned_indices = {text: set() for text in all_text_matches.keys()}
+	lines = raw_response.splitlines()
 
+	seen = set() # Ensure unique lines
+	entities = []
 
-        # 3. Korrigera entiteterna
-        formatted_entities = []
-        for j, entity in enumerate(model_entities):
-            
-            # Validera att vi har de nycklar vi behöver från modellen
-            if not all(k in entity for k in ('label', 'text', 'start', 'end')):
-               print(f"\n--- VARNING: Hoppar över felaktigt formaterad entitet från modell: {entity}", file=sys.stderr)
-               continue
-            
-            # Hämta värden, trimma texten för sökning
-            original_start = entity['start']
-            entity_text = entity['text']
-            trimmed_entity_text = entity_text.strip()
-            
-            if not trimmed_entity_text:
-                print(f"\n--- VARNING: Hoppar över entitet med tom text: {entity}", file=sys.stderr)
-                continue
-                
-            # Hämta alla möjliga matchningar för denna textsträng
-            match_indices = all_text_matches.get(trimmed_entity_text, [])
-            
-            if not match_indices:
-                print(f"\n--- VARNING: Kunde inte hitta '{trimmed_entity_text}' i texten. Hoppar över entitet.", file=sys.stderr)
-                continue # Texten hittades inte alls
+	for line in lines:
+		line = line.strip() # Strip any surrounding whitespace
+		if len(line) < 2:
+			print(f"WARNING: Very short or empty line detected. Skipping line: {line}")
+			continue
+		if not line[0].isdigit():
+			print(f"WARNING: Line does not start with index. Skipping line: {line}")
+			continue
+		label_id = line[0]
+		if label_id not in LABEL_IDS:
+			print(f"Unknown label index detected. Skipping line: {line}")
+			continue
+		if line in seen:
+			print(f"WARNING: Duplicate entity detected. Skipping line: {line}")
+			continue
 
-            # Hitta tillgängliga matchningar som inte redan har tilldelats
-            available_matches = [
-                index for index in match_indices 
-                if index not in assigned_indices[trimmed_entity_text]
-            ]
-            
-            if not available_matches:
-                # Detta kan hända om det finns fler entiteter än matchningar (tvetydigt)
-                print(f"\n--- VARNING: För många entiteter ('{trimmed_entity_text}'). Ingen ledig position hittades. Hoppar över.", file=sys.stderr)
-                continue
+		seen.add(line)
+		entities.append((label_id, line[1:])) # Appends a tuple for each line: [(1, Elin Rask), (2, 0722 33 44 55)]
 
-            # Hitta den tillgängliga matchningen som ligger närmast det ursprungliga indexet
-            best_new_start_index = -1
-            min_distance = float('inf')
-            
-            # Använd 0 som fallback om original_start inte är ett giltigt numeriskt index
-            original_start_for_dist = original_start if isinstance(original_start, int) and original_start >= 0 else 0
-            
-            # 1. Sök efter närmaste index
-            for index in available_matches:
-                distance = abs(index - original_start_for_dist)
-                if distance < min_distance:
-                    min_distance = distance
-                    best_new_start_index = index
-            
-            # 2. Tilldela det funna indexet
-            if best_new_start_index != -1:
-                new_start = best_new_start_index
-                new_end = new_start + len(trimmed_entity_text)
-                
-                # Registrera indexet som använt
-                assigned_indices[trimmed_entity_text].add(new_start)
+	return entities
 
-                # Lägg till den korrigerade entiteten
-                formatted_entities.append({
-                    "id": f"e{j+1}", 
-                    "label": entity['label'],
-                    "start": new_start,
-                    "end": new_end,
-                    "text": trimmed_entity_text # Använd den trimmade texten för konsekvens
-                })
-            else:
-                # Logikfel/bör inte hända om available_matches inte var tom
-                print(f"\n--- FEL: Internt logikfel vid tilldelning för '{trimmed_entity_text}'. Hoppar över.", file=sys.stderr)
-        
-        # 4. Bygg det nya objektet för output-filen
-        new_item = {
-            "id": item['id'],
-            "language": item['language'],
-            "text": item['text'],
-            "predicted_entities": formatted_entities # Använder modellens korrigerade prediktioner
-        }
-        output_data.append(new_item)
-        print(f"Klar. Hittade {len(formatted_entities)} entiteter.")
-        
-    return output_data
+def index_finder(text, entity_texts):
+	"""
+	Takes the text and a list of entity substrings as input. 
+	For each entity, finds the start and end index in the text. 
+	Ensures no overlaps if there are identical entities ("Mia gillar att heta Mia.").
+	Returns a list of dictionaries: {"text": ..., "start"..., "end"...,}
+	"""
+	found_entities = []
+	occupied_indices = set()
 
-# --- Huvudprogram ---
+	# Sort the list by length (descending) to prioritize longest entities first
+	unique_entities = sorted(list(set(entity_texts)), key=len, reverse=True)
+
+	for entity_text in unique_entities:
+		search_start = 0
+		while True:
+			start_index = text.find(entity_text, search_start) # Finds first occurrence of entity_text after search_start
+
+			if start_index == -1:
+				break # No more occurrences found
+
+			else:
+				end_index = start_index + len(entity_text)
+
+				is_occupied = any(i in occupied_indices for i in range(start_index, end_index))
+
+				if is_occupied: # Index already occupied (found), move search cursor forward one step
+					search_start += 1
+					continue
+				else:
+					found_entities.append({
+						"text": entity_text,
+						"start": start_index,
+						"end": end_index
+					})
+					
+				# Mark these positions as occupied
+				for i in range(start_index, end_index):
+					occupied_indices.add(i)
+
+				# Move search cursor forward
+				search_start = end_index
+	
+	# Sort the list by start_index for a consistent order
+	found_entities.sort(key=lambda x: x['start'])
+
+	return found_entities
+
+def build_json(predictions, indexed_entities):
+	"""
+    Takes:
+        predictions = [(label_id, entity_text), ...]
+        indexed_entities = [ {"text": ..., "start": ..., "end": ...}, ...]
+
+    Returns:
+        A list of JSON dictionaries matching the gold format:
+		[{'label': 'NAME', 'start': 23, 'end': 27, 'text': 'Elin Rask'}, {'label': 'PHONE', 'start': 12, 'end': 48, 'text': '0722 33 44 55'}]
+    """
+
+	label_map = {
+        '1': 'NAME',
+        '2': 'PHONE',
+        '3': 'ADDRESS',
+        '4': 'NATIONAL_ID',
+		'5': 'EMAIL'
+    }
+
+	final_entities = []
+	index_lookup = { item["text"]: item for item in indexed_entities} # Access indexes like index_lookup["Elin Rask"]["start"]
+ 
+	for label_id, entity_text in predictions:
+		index_info = index_lookup.get(entity_text)
+		
+		# Convert label_id -> label string
+		label_str = label_map.get(label_id, "Unknown")
+		print(label_str)
+
+		entity_obj = {
+			"label": label_str,
+			"start": index_info["start"],
+			"end": index_info["end"],
+			"text": entity_text
+		}
+
+		final_entities.append(entity_obj)
+	
+	return final_entities
+
+# A main loop that processes all documents and saves the results to a file
 def main():
-    print(f"Startar bearbetning med modell: {MODEL_NAME}")
-    print(f"Läser indata från: {INPUT_FILE}")
-    
-    # 1. Läs in indata
-    input_data = load_data(INPUT_FILE)
-    if not input_data:
-        return # Avsluta om indata inte kunde läsas
+	docs = load_data(INPUT_FILE)
 
-    # 2. Bearbeta datan
-    predictions = process_data(input_data)
-    
-    # 3. Spara utdata
-    if predictions:
-        save_data(OUTPUT_FILE, predictions)
-    else:
-        print("Ingen utdata genererades på grund av fel.", file=sys.stderr)
+	output_docs = []
+
+	for doc in docs:
+		text = doc.get("text", "")
+		doc_id = doc.get("id", "Unknown") # E.g. "sv-001"
+
+		print(f"Processing document: {doc_id}")
+
+		# Call the model
+		predictions = prompt_model(text)
+		if predictions is None:
+			print(f"ERROR: Model failed to process document {doc_id}. Skipping.")
+			continue
+
+		# Extract only the text part for index finder
+		entity_texts = [entity_text for (_, entity_text) in predictions]
+
+		# Pass text values to index finder
+		indexed = index_finder(text, entity_texts)
+
+		# Build JSON entity objects
+		predicted_entities = build_json(predictions, indexed)
+
+		# Construct final document object
+		output_doc = {
+			"id": doc_id, 
+			"language": doc.get("language", ""),
+			"text": text, 
+			"predicted entities": predicted_entities
+		}
+
+		output_docs.append(output_doc)
+
+		# Save everything to file
+		save_data(OUTPUT_FILE, output_docs)
+
+	print(f"Done! Predictions saved to {OUTPUT_FILE}.")
 
 if __name__ == "__main__":
-    main()
+	main()
