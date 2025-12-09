@@ -197,14 +197,24 @@ def build_json(predictions, indexed_entities):
     }
 
 	final_entities = []
-	index_lookup = { item["text"]: item for item in indexed_entities} # Access indexes like index_lookup["Elin Rask"]["start"]
+ 
+	index_lookup = {}
+	for item in indexed_entities:
+		text = item["text"]
+		index_lookup.setdefault(text, []).append(item)
+
  
 	for label_id, entity_text in predictions:
-		index_info = index_lookup.get(entity_text)
-		
+		index_list = index_lookup.get(entity_text)
+
+		if not index_list or len(index_list) == 0:
+			print(f"WARNING: No remaining index match for entity '{entity_text}'")
+			continue
+
+		index_info = index_list.pop(0)
+
 		# Convert label_id -> label string
 		label_str = label_map.get(label_id, "Unknown")
-		print(label_str)
 
 		entity_obj = {
 			"label": label_str,

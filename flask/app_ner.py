@@ -114,23 +114,54 @@ def index_finder(text, entity_texts):
     return found_entities
 
 def build_json(predictions, indexed_entities):
-    
-    label_map = {'1': 'NAME', '2': 'PHONE', '3': 'ADDRESS', '4': 'NATIONAL_ID', '5': 'EMAIL'}
-    final_entities = []
-    index_lookup = {item["text"]: item for item in indexed_entities}
+	"""
+    Takes:
+        predictions = [(label_id, entity_text), ...]
+        indexed_entities = [ {"text": ..., "start": ..., "end": ...}, ...]
+
+    Returns:
+        A list of JSON dictionaries matching the gold format:
+		[{'label': 'NAME', 'start': 23, 'end': 27, 'text': 'Elin Rask'}, {'label': 'PHONE', 'start': 12, 'end': 48, 'text': '0722 33 44 55'}]
+    """
+
+	label_map = {
+        '1': 'NAME',
+        '2': 'PHONE',
+        '3': 'ADDRESS',
+        '4': 'NATIONAL_ID',
+		'5': 'EMAIL'
+    }
+
+	final_entities = []
  
-    for label_id, entity_text in predictions:
-        if entity_text in index_lookup:
-            index_info = index_lookup[entity_text]
-            label_str = label_map.get(label_id, "Unknown")
-            
-            final_entities.append({
-                "label": label_str,
-                "start": index_info["start"],
-                "end": index_info["end"],
-                "text": entity_text
-            })
-    return final_entities
+	index_lookup = {}
+	for item in indexed_entities:
+		text = item["text"]
+		index_lookup.setdefault(text, []).append(item)
+
+ 
+	for label_id, entity_text in predictions:
+		index_list = index_lookup.get(entity_text)
+
+		if not index_list or len(index_list) == 0:
+			print(f"WARNING: No remaining index match for entity '{entity_text}'")
+			continue
+
+		index_info = index_list.pop(0)
+
+		# Convert label_id -> label string
+		label_str = label_map.get(label_id, "Unknown")
+
+		entity_obj = {
+			"label": label_str,
+			"start": index_info["start"],
+			"end": index_info["end"],
+			"text": entity_text
+		}
+
+		final_entities.append(entity_obj)
+	
+	return final_entities
 
 # --- FLASK ROUTER ---
 
