@@ -176,7 +176,7 @@ def run_script():
                 continue
             
             if predictions is None:
-                yield " -> Inga prediktioner eller fel vid parsing.\n"
+                yield " -> Inga predictions eller fel vid parsing.\n"
                 continue
             
             entity_texts = [et for (_, et) in predictions]
