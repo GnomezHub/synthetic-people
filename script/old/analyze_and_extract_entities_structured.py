@@ -1,6 +1,6 @@
 import json
 
-def analyze_and_extract_entities_structured(text, target_entity_list):
+def find_entity_indexes(text, target_entity_list):
     """
     Analyzes a text to find occurrences of specific entities defined in a structured list.
     
@@ -135,13 +135,13 @@ def analyze_and_extract_entities_structured(text, target_entity_list):
     # Return the final JSON string
     return json.dumps(final_results, indent=2, ensure_ascii=False)
 
-
-
-
-
 source_text = "IT-support fick ett ärende där användaren skickat in sitt telefonnummer 0722 55 44 90 och sin adress: Lillgatan 7, 702 12 Örebro."
 entities = ["20722 55 44 90", "3Lillgatan 7, 702 12 Örebro"] 
 json_output = analyze_and_extract_entities_structured(source_text, entities)
 print(f"source_text:{source_text}")
 print("\nJSON Output:")
 print(json_output)
+
+# input - text and entities list
+# output - dictionary with all key values for gold_entities: label, start, end, text
+# eval_ner only needs to measure indexes. indexes infer text
