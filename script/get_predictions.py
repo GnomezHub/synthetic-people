@@ -6,8 +6,8 @@ import os
 MODEL_NAME = "gemma3:4b"
 
 # Later change this to define files in terminal
-INPUT_FILE = "data-test.json"
-OUTPUT_FILE = "predictions-test.json"
+INPUT_FILE = "gold-sv-30.json"
+OUTPUT_FILE = "predicted-sv-30.json"
 
 LABEL_IDS = {"1", "2", "3", "4", "5"}
 
@@ -40,6 +40,15 @@ Example: "En lärare rapporterade att e-postadressen sara.lindgren@edu.se inte g
 The correct output for this text is:
 
 	5sara.lindgren@edu.se
+
+- If the same entity appears more than once, ALL instances must be included. 
+Example text: "Mia och Anna bor i Malmö. Anna bor mer centralt än Mia."
+The correct output for this text is:
+
+	1Mia
+	1Anna
+	1Anna
+	1Mia
 
 - Do NOT include commas, colons, JSON, quotes or explanations. Only the label id and entity text.
 - If no entities are found, output an empty string.
@@ -105,7 +114,6 @@ def prompt_model(text):
 
 	lines = raw_response.splitlines()
 
-	seen = set() # Ensure unique lines
 	entities = []
 
 	for line in lines:
@@ -120,11 +128,7 @@ def prompt_model(text):
 		if label_id not in LABEL_IDS:
 			print(f"Unknown label index detected. Skipping line: {line}")
 			continue
-		if line in seen:
-			print(f"WARNING: Duplicate entity detected. Skipping line: {line}")
-			continue
 
-		seen.add(line)
 		entities.append((label_id, line[1:])) # Appends a tuple for each line: [(1, Elin Rask), (2, 0722 33 44 55)]
 
 	return entities
@@ -261,6 +265,8 @@ def main():
 			"text": text, 
 			"predicted entities": predicted_entities
 		}
+
+		print(f"Final json object: {output_doc}")
 
 		output_docs.append(output_doc)
 
