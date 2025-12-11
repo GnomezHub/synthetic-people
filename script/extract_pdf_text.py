@@ -5,6 +5,7 @@ import re
 from pdf2image import convert_from_path
 import pytesseract
 from PIL import Image, ImageEnhance
+import json
 
 """
 ============================= REQUIRED DEPENDENCIES =============================
@@ -140,6 +141,39 @@ def save_to_txt(output_path: str, text_dict: dict):
             f.write(text + "\n\n")
 
 
+# ======================================================================
+# NEW FUNCTION (Safe Chunking Without Cutting Words)
+# ======================================================================
+
+def split_text_into_chunks(text: str, chunk_size: int = 500) -> list:
+    """
+    Splits text into chunks with a maximum size but NEVER cuts words in half.
+    The split will always happen at a space or newline.
+    Returns a list of string chunks.
+    """
+    words = text.strip().split()
+    chunks = []
+    current_chunk = ""
+
+    for word in words:
+        # If adding this word exceeds the limit → start new chunk
+        if len(current_chunk) + len(word) + 1 > chunk_size:
+            chunks.append(current_chunk.strip())
+            current_chunk = word + " "
+        else:
+            current_chunk += word + " "
+
+    # Add the last chunk
+    if current_chunk.strip():
+        chunks.append(current_chunk.strip())
+
+    return chunks
+
+
+# ======================================================================
+# MAIN EXECUTION
+# ======================================================================
+
 if __name__ == "__main__":
     """
     ============================= USAGE EXAMPLE =============================
@@ -161,7 +195,26 @@ if __name__ == "__main__":
     if not pdf_path.exists():
         raise FileNotFoundError(f"❌ File not found: {pdf_path}")
 
+    # Extract text (smart: pdfplumber first, OCR fallback)
     result = extract_text_from_pdf_smart(str(pdf_path))
+
+    # Save normal TXT output
     save_to_txt(args.output_txt, result)
 
     print(f"\n✅ Text successfully saved to: {args.output_txt}")
+
+    # OPTIONAL: Create Chunks (SAFE, NO WORD CUT)
+    full_text = "\n".join(result.values())
+    chunks = split_text_into_chunks(full_text, chunk_size=500)
+
+    print(f"📌 Created {len(chunks)} chunks (no word cutting).")
+    
+
+    # Save chunks as a list in a JSON file
+    chunks_json_path = str(Path(args.output_txt).with_name("chunks.json"))
+
+    with open(chunks_json_path, "w", encoding="utf-8") as f:
+        json.dump(chunks, f, ensure_ascii=False, indent=2)
+
+    print(f"📁 Chunks list saved to: {chunks_json_path}")
+
