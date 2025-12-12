@@ -1,0 +1,32 @@
+[
+  {
+    "id": "Willys.pdf",
+    "text": "Jag är en Wilys! \n \n \n \n Mit namn är Dany och jag är en nogran, självgående och ambitiös kile.\n Efter flera års arbete med IT och programering så bestämde jag mig för \n \n at helt byta riktning. Jag flytade til Norland där jag arbetade som \n campingvärd, vaktmästare, städare samt skötsel av natureservat och \n \n lantbruk. Varje rol var en ny erfarenhet för mig och jag sköte det väldigt\n bra, vilket kan intygas av arbetsgivarna. Som campingvärd stod jag en hel \n del i receptionen som även var en kiosk med dagligvaror och alt vad det \n \n inebär (inventering, kundservice och kasa). Nu har jag precis flytat \n tilbaka til Skåne (Malmö) och vil gärna arbeta med just dagligvaruhandel.\n \n När jag befiner mig på Wilys käner jag mig hema och när jag ser dem \n som redan jobar där käner jag at “det där hade jag velat sysla med om \n \n dagarna”. Plocka ihop varor för e-handel, ordna och dona, stå til tjänst för\n kunder och vara trevlig, sita i kasan och bjuda på lenden. Hopas at vi\n ses! Obs jag upfyler kraven för nystartsjob =) \n \n \n Med Vänlig Hälsning \n \n /Dany Gomez \n 072 07 9265",
+    "predicted entities": [
+      {
+        "label": "NAME",
+        "start": 29,
+        "end": 33,
+        "text": "Dany"
+      },
+      {
+        "label": "ADDRESS",
+        "start": 603,
+        "end": 608,
+        "text": "Malmö"
+      },
+      {
+        "label": "NAME",
+        "start": 1013,
+        "end": 1023,
+        "text": "Dany Gomez"
+      },
+      {
+        "label": "PHONE",
+        "start": 1024,
+        "end": 1035,
+        "text": "072 07 9265"
+      }
+    ]
+  }
+]
