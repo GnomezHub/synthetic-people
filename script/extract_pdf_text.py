@@ -32,13 +32,6 @@ This script requires the following external tools to be installed on the system:
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
-def fix_duplicated_text(text: str) -> str:
-    """
-    Removes duplicated repeated characters caused by OCR noise.
-    Example:
-        "Heeelllooo" -> "Helo"
-    """
-    return re.sub(r"(.)\1+", r"\1", text)
 
 
 def preprocess_image(image: Image.Image) -> Image.Image:
@@ -71,8 +64,7 @@ def extract_text_with_pdfplumber(pdf_path: str) -> dict:
             raw_text = page.extract_text(layout=True)
 
             if raw_text:
-                clean_text = fix_duplicated_text(raw_text)
-                pages_text[f"page_{i}"] = clean_text.strip()
+                pages_text[f"page_{i}"] = raw_text.strip()
             else:
                 pages_text[f"page_{i}"] = ""
 
