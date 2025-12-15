@@ -3,13 +3,11 @@ import json
 import sys
 import os
 
-MODEL_NAME = "gemma3:4b"
-
-# Later change this to define files in terminal
-INPUT_FILE = "gold-sv-30.json"
-OUTPUT_FILE = "predicted-sv-30.json"
+INPUT_FILE = sys.argv[1]
+OUTPUT_FILE = sys.argv[2]
 
 LABEL_IDS = {"1", "2", "3", "4", "5"}
+MODEL_NAME = "gemma3:4b"
 
 SYSTEM_PROMPT = """
 You are extracting specific entities from text. 
@@ -263,10 +261,8 @@ def main():
 			"id": doc_id, 
 			"language": doc.get("language", ""),
 			"text": text, 
-			"predicted entities": predicted_entities
+			"predicted_entities": predicted_entities
 		}
-
-		print(f"Final json object: {output_doc}")
 
 		output_docs.append(output_doc)
 
@@ -276,4 +272,9 @@ def main():
 	print(f"Done! Predictions saved to {OUTPUT_FILE}.")
 
 if __name__ == "__main__":
+
+	if len(sys.argv) < 3:
+		print("Usage: python get_predictions.py <input-file> <output_file>")
+		sys.exit(1)
+
 	main()
