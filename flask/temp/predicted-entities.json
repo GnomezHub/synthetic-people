@@ -1,31 +1,49 @@
 [
   {
-    "id": "Willys.pdf",
-    "text": "Jag är en Wilys! \n \n \n \n Mit namn är Dany och jag är en nogran, självgående och ambitiös kile.\n Efter flera års arbete med IT och programering så bestämde jag mig för \n \n at helt byta riktning. Jag flytade til Norland där jag arbetade som \n campingvärd, vaktmästare, städare samt skötsel av natureservat och \n \n lantbruk. Varje rol var en ny erfarenhet för mig och jag sköte det väldigt\n bra, vilket kan intygas av arbetsgivarna. Som campingvärd stod jag en hel \n del i receptionen som även var en kiosk med dagligvaror och alt vad det \n \n inebär (inventering, kundservice och kasa). Nu har jag precis flytat \n tilbaka til Skåne (Malmö) och vil gärna arbeta med just dagligvaruhandel.\n \n När jag befiner mig på Wilys käner jag mig hema och när jag ser dem \n som redan jobar där käner jag at “det där hade jag velat sysla med om \n \n dagarna”. Plocka ihop varor för e-handel, ordna och dona, stå til tjänst för\n kunder och vara trevlig, sita i kasan och bjuda på lenden. Hopas at vi\n ses! Obs jag upfyler kraven för nystartsjob =) \n \n \n Med Vänlig Hälsning \n \n /Dany Gomez \n 072 07 9265",
+    "id": "Intyg.pdf",
+    "text": "Resultatintyg Utskriftsdatum \n 2024-08-26 \n \n \n Namn Personumer \n Ingrid Eliason 1980630-308 \n \n \n Utfärdade bevis \n Titel Datum för avslutade studier Utfärdad\n \n Filosofie kandidatexamen, 180 hp 2020-12-18 2021-01-12 \n Huvudområde: Franska \n Filosofie masterexamen, 120 hp 2023-06-15 2023-07-13 \n Huvudområde: Språkteknologi \n \n Avslutade kurser \n \n Benämning Omfatning Betyg Datum Not \n Språk, datorer och textbehandling 7,5hp G 2017-1-06 1 \n \n Introduktion til modern språkvetenskap 7,5hp G 2017-1-25 1 \n Världens språk 7,5hp G 2018-01-12 1 \n Språket, individen och samhälet 7,5hp G 2018-01-15 1 \n Franska A1 30,0hp G 2018-08-15 1 \n Franska B1 30,0hp G 2019-12-16 1 \n Franska C1 30,0hp VG 2020-01-16 1 \n Svenska språket B 30,0hp G 2020-06-05 1 \n \n Ryska A 30,0hp VG 2020-12-18 1 \n Danska 1 7,5hp VG 2021-03-28 1 \n Praktisk danska 7,5hp VG 2021-06-04 1 \n Matematik för språkteknologer 7,5hp G 2021-10-27 1 \n Programering för språkteknologer I 7,5hp VG 2021-1-05 1 \n Språkteknologi 15,0hp G 202-01-14 1 \n Avancerad programering för språkteknologer 7,5hp G 202-03-25 1 \n Informationsökning (avancerad nivå) 7,5hp G 202-05-24 1 \n \n Maskininlärning inom språkteknologi 7,5hp G 202-05-31 1 \n Syntax i världens språk 7,5hp VG 202-12-13 1 \n Språkteknologi: forskning och utveckling 15,0hp VG 2023-01-13 1 \n Masterupsats i språkteknologi 30,0hp G 2023-06-15 1 \n \n \n \n \n \n \n \n Kontrolera intyget på: htps:/w.student.ladok.se/verifiera/ Personumer: 1980630-308\n Verifierbart tom: 2024-1-24 Kontrolkod: 080LILCA89\n Sida 1 / 2\n\nIngrid Eliason Resultatintyg Utskriftsdatum \n 1980630-308 2024-08-26 \n \n \n \n Delar i ej avslutade kurser \n \n Benämning Omfatning Betyg Datum Not \n Ryska B (30,0hp) \n Text 5,0hp VG 2021-05-05 1 \n Gramatik 7,5hp VG 2021-05-18 1 \n Skriftlig språkfärdighet 5,0hp VG 2021-05-21 1 \n Muntlig Språkfärdighet 5,0hp VG 2021-05-25 1 \n \n \n Sumering \n \n Totalt varav tilgodoräknat Övrig tilgodoräknad utbildning \n 32,5 hp \n \n \n Noter och information \n \n 60 högskolepoäng (hp) motsvarar et års heltidstudier. Poängsystemet är likvärdigt med European Credit\n Transfer System (ECTS), då en högskolepoäng svarar mot en ECTS-poäng. \n \n 1 Betygskala: Väl godkänd (VG), Godkänd (G), Underkänd (U) \n \n Ovanstående är et utdrag ur registret för studiedokumentation. \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n Kontrolera intyget på: htps:/w.student.ladok.se/verifiera/ Personumer: 1980630-308\n Verifierbart tom: 2024-1-24 Kontrolkod: 080LILCA89\n Postadres Sida 2 / 2 \n Upsala universitet \n Box 256 \n 751 05 Upsala",
     "predicted entities": [
       {
         "label": "NAME",
-        "start": 29,
-        "end": 33,
-        "text": "Dany"
+        "start": 56,
+        "end": 70,
+        "text": "Ingrid Eliason"
       },
       {
-        "label": "ADDRESS",
-        "start": 603,
-        "end": 608,
-        "text": "Malmö"
+        "label": "NATIONAL_ID",
+        "start": 71,
+        "end": 82,
+        "text": "1980630-308"
+      },
+      {
+        "label": "NATIONAL_ID",
+        "start": 1346,
+        "end": 1357,
+        "text": "1980630-308"
       },
       {
         "label": "NAME",
-        "start": 1013,
-        "end": 1023,
-        "text": "Dany Gomez"
+        "start": 1420,
+        "end": 1434,
+        "text": "Ingrid Eliason"
       },
       {
-        "label": "PHONE",
-        "start": 1024,
-        "end": 1035,
-        "text": "072 07 9265"
+        "label": "NATIONAL_ID",
+        "start": 1464,
+        "end": 1475,
+        "text": "1980630-308"
+      },
+      {
+        "label": "NATIONAL_ID",
+        "start": 2182,
+        "end": 2193,
+        "text": "1980630-308"
+      },
+      {
+        "label": "ADDRESS",
+        "start": 2266,
+        "end": 2306,
+        "text": "Upsala universitet Box 256 751 05 Upsala"
       }
     ]
   }

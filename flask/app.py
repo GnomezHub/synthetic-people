@@ -1,11 +1,9 @@
 import os
 import json
-import ollama
+from openai import OpenAI
 from flask import Flask, render_template, request, Response, stream_with_context
 from werkzeug.utils import secure_filename
 import io
-
-# PDF/OCR Importer
 import pdfplumber
 from pathlib import Path
 import re
@@ -13,8 +11,12 @@ from pdf2image import convert_from_path
 import pytesseract
 from PIL import Image, ImageEnhance
 
+
+
 # --- CONFIGURATION ---
-MODEL_NAME = "gemma3:4b"
+client = OpenAI()
+
+MODEL_NAME = "gpt-4.1"
 UPLOAD_FOLDER = 'uploads'
 TEMP_FOLDER = 'temp'
 OUTPUT_FILE = "predicted-entities.json"
@@ -35,50 +37,34 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['TEMP_FOLDER'] = TEMP_FOLDER
 
-# --- LLM SYSTEM PROMPT (From your updated get_predictions.py) ---
+# --- LLM SYSTEM PROMPT
 SYSTEM_PROMPT = """
-You are extracting specific entities from text. 
-You must identify ONLY the following labels, and return ONLY their numeric IDs:
+Extract entities from the input text using ONLY the labels below.
 
-1 = NAME  
-2 = PHONE  
-3 = ADDRESS  
+Labels:
+1 = NAME
+2 = PHONE
+3 = ADDRESS
 4 = NATIONAL_ID
 5 = EMAIL
 
-INSTRUCTIONS:
-- Read the user text.
-- Find every entity that matches one of the labels above. Do not include any labels that are not present in the list above.
-- For each entity, output EXACTLY ONE LINE, formatted as:
+Output one entity per line as: <label_id><entity_text>
 
-    <label_id><entity_text>
+Example text: "Anna Hansson bor på Stjärnvägen 12, Hässleholm. Hon har personnummer 950601-0909 och telefonnummer 070 091 929 3. Hennes mail är anna.hansson@live.se."
 
-Example text: "När handläggaren på Skatteverket ringde stod det att ansökan skickats av Elin Rask. Hennes nummer är 0722 33 44 55."
-The correct output for this text is:
+Correct output for this text is:
+1Anna Hansson
+3Stjärnvägen 12, Hässleholm
+4950601-0909
+2070 091 929 3
+5anna.hansson@live.se
 
-    1Elin Rask
-    20722 33 44 55
-
-- The EMAIL label must be used for email addresses. They always contain an "@". You have to mark them as EMAIL (5), noting else. Even if they contain one or more names, they have to be marked as EMAIL.
-
-Example: "En lärare rapporterade att e-postadressen sara.lindgren@edu.se inte gick att nå."
-The correct output for this text is:
-
-	5sara.lindgren@edu.se
-
-- If the same entity appears more than once, ALL instances must be included. 
-Example text: "Mia och Anna bor i Malmö. Anna bor mer centralt än Mia."
-The correct output for this text is:
-
-	1Mia
-	1Anna
-	1Anna
-	1Mia
-
-- Do NOT include commas, colons, JSON, quotes or explanations. Only the label id and entity text.
+Rules:
+- Use only these labels.
+- Include every occurrence, even duplicates. - EMAIL (5) must be used for any string containing "@".
+- Keep the formatting of entities exactly like it is in the original text.
+- Do not output anything except the formatted lines.
 - If no entities are found, output an empty string.
-
-Your entire response must consist ONLY of these lines, nothing else.
 """
 
 # --- PDF EXTRACTION FUNCTIONS (From extract_pdf_text.py) ---
@@ -173,33 +159,38 @@ def split_text_into_chunks(text: str, chunk_size: int = 500) -> list:
 # --- PREDICTION FUNCTIONS (From get_predictions.py) ---
 
 def prompt_model(text):
-	"""Prompts the LLM and returns a list of tuples with label id and entity, and a potential error string."""
-	user_prompt = f"Extract all entities from the following text and respond only with the requested entity string:\n\n{text}"
-	try:
-		response = ollama.chat(
-			model = MODEL_NAME,
-			messages=[
-				{"role": "system", "content": SYSTEM_PROMPT},
-				{"role": "user", "content": user_prompt}
-			],
-			options={"temperature": 0.1}
-		)
-		raw_response = response['message']['content']
-	except Exception as e:
-		return None, str(e)
+    """Prompts the LLM"""
 
-	lines = raw_response.splitlines()
-	entities = []
+    user_prompt = f"Extract all entities from the following text and respond only with the request entity string: \n\n{text}"
 
-	for line in lines:
-		line = line.strip()
-		if len(line) < 2 or not line[0].isdigit(): continue
-		label_id = line[0]
-		if label_id not in LABEL_IDS: continue
+    try:
+        response = client.chat.completions.create(
+            model = MODEL_NAME,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature = 0.1,
+        )
+        raw_response = response.choices[0].message.content
 
-		entities.append((label_id, line[1:])) 
+    except Exception as e:
+        return None, str(e)
+    
+    lines = raw_response.splitlines()
+    entities = []
 
-	return entities, None
+    for line in lines: 
+        line = line.strip()
+        if len(line) < 2 or not line[0].isdigit():
+            continue
+        label_id = line[0]
+        if label_id not in LABEL_IDS:
+            continue
+
+        entities.append((label_id, line[1:]))
+
+    return entities, None
 
 def index_finder(text, entity_texts):
     """
