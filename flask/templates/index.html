@@ -3,100 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PII Extractor (Flask)</title>
+    <title>PII Extractor & Masker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Styling for the log window for a terminal-like appearance */
+        body { background-color: #f8f9fa; }
         #log-window {
             background-color: #1e1e1e;
             color: #00ff00;
             font-family: 'Courier New', Courier, monospace;
             padding: 15px;
-            height: 400px;
-            overflow-y: scroll; /* Allows scrolling when content exceeds height */
+            height: 250px;
+            overflow-y: auto;
             border-radius: 5px;
-            white-space: pre-wrap; /* Preserves line breaks from the streamed output */
-            border: 1px solid #333;
+            white-space: pre-wrap;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
         }
+        /* Review UI Styles */
+        #review-container { display: none; }
+        #text-editor {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 20px;
+            height: 500px;
+            overflow-y: scroll;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            border-radius: 8px;
+        }
+        /* Highlighting Labels */
+        .hl { padding: 2px 4px; border-radius: 3px; font-weight: bold; color: black; }
+        .hl-NAME { background-color: #ffadad; }
+        .hl-PHONE { background-color: #ffd6a5; }
+        .hl-ADDRESS { background-color: #fdffb6; }
+        .hl-NATIONAL_ID { background-color: #caffbf; }
+        .hl-EMAIL { background-color: #9bf6ff; }
+        
+        .legend-item { display: inline-block; margin-right: 10px; font-size: 0.8rem; }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container mt-5">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h3>Personal Stuff Extractor</h3>
-            <p class="mb-0">Upload a PDF to extract, chunk, and predict personal data.</p>
+<div class="container mt-5 mb-5">
+    <div id="upload-section" class="card shadow mb-4">
+        <div class="card-header bg-info">
+            <h3 class="mb-0">Personal Stuff Extractor</h3>
+            <p class="mb-0">Upload a PDF to identify and mask PII.</p>
         </div>
         <div class="card-body">
-            
-            <form id="uploadForm" enctype="multipart/form-data">
+            <form id="uploadForm">
                 <div class="mb-3">
-                    <label for="fileInput" class="form-label">Select Source File (.pdf)</label>
-                    <input class="form-control" type="file" id="fileInput" name="file" accept=".pdf" required>
+                    <label class="form-label">Select Source PDF</label>
+                    <input class="form-control" type="file" id="fileInput" accept=".pdf" required>
                 </div>
-                <button type="submit" class="btn btn-success" id="startBtn">Start Process</button>
+                <button type="submit" class="btn btn-success" id="startBtn">Start Processing</button>
             </form>
+            <div class="mt-4">
+                <h6>Processing Logs:</h6>
+                <div id="log-window">Awaiting start...</div>
+            </div>
+        </div>
+    </div>
 
-            <hr class="my-4">
-
-            <h5>Output Log:</h5>
-            <div id="log-window">Awaiting start...</div>
+    <div id="review-container" class="card shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Review & Mask Information</h5>
+            <div>
+                <span class="legend-item"><span class="hl hl-NAME">NAME</span></span>
+                <span class="legend-item"><span class="hl hl-PHONE">PHONE</span></span>
+                <span class="legend-item"><span class="hl hl-ADDRESS">ADDRESS</span></span>
+                <span class="legend-item"><span class="hl hl-NATIONAL_ID">ID</span></span>
+                <span class="legend-item"><span class="hl hl-EMAIL">EMAIL</span></span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="text-editor"></div>
+            <div class="mt-4 text-center">
+                <button id="exportBtn" class="btn btn-primary btn-lg">Mask & Export PDF</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // JavaScript to handle form submission and stream the server response
     const form = document.getElementById('uploadForm');
     const logWindow = document.getElementById('log-window');
     const startBtn = document.getElementById('startBtn');
+    const reviewContainer = document.getElementById('review-container');
+    const textEditor = document.getElementById('text-editor');
+    const exportBtn = document.getElementById('exportBtn');
+
+    let globalData = null;
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Disable button and update status
         startBtn.disabled = true;
-        startBtn.innerText = "Running...";
         logWindow.innerText = "Initializing...\n";
         
-        const formData = new FormData(form);
+        const fileInput = document.getElementById('fileInput');
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
 
         try {
-            // Start the fetch request to the /run route
-            const response = await fetch('/run', {
-                method: 'POST',
-                body: formData
-            });
-
-            // Check for non-OK response codes (400, 500, etc.)
-            if (!response.ok) {
-                const errorText = await response.text();
-                logWindow.innerText += `\n\nSERVER ERROR: ${errorText}`;
-                return;
-            }
-
-            // Read the streaming response body
+            const response = await fetch('/run', { method: 'POST', body: formData });
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
+            let accumulatedResponse = "";
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 
-                // Decode the chunk and append text to the log window
-                const text = decoder.decode(value);
-                logWindow.innerText += text;
-                
-                // Scroll to the bottom to show the latest output
-                logWindow.scrollTop = logWindow.scrollHeight;
+                const chunk = decoder.decode(value);
+                accumulatedResponse += chunk;
+
+                // Separate logs from JSON data using the marker
+                if (chunk.includes("DATA_JSON:")) {
+                    const parts = accumulatedResponse.split("DATA_JSON:");
+                    logWindow.innerText += parts[0].replace(/LOG:/g, "");
+                    const jsonData = JSON.parse(parts[1]);
+                    showReviewUI(jsonData);
+                    break;
+                } else {
+                    logWindow.innerText += chunk.replace(/LOG:/g, "");
+                    logWindow.scrollTop = logWindow.scrollHeight;
+                }
             }
         } catch (error) {
-            logWindow.innerText += `\n\nCRITICAL CLIENT ERROR: ${error}`;
+            logWindow.innerText += `\nCRITICAL ERROR: ${error}`;
         } finally {
-            // Re-enable button regardless of success/failure
             startBtn.disabled = false;
-            startBtn.innerText = "Start Process";
+        }
+    });
+
+    function showReviewUI(data) {
+        globalData = data;
+        reviewContainer.style.display = 'block';
+        
+        let htmlContent = data.text;
+        // Sort entities in reverse order to insert HTML tags without breaking indices
+        const sortedEntities = [...data.predicted_entities].sort((a, b) => b.start - a.start);
+
+        sortedEntities.forEach(ent => {
+            const prefix = htmlContent.substring(0, ent.start);
+            const entityText = htmlContent.substring(ent.start, ent.end);
+            const suffix = htmlContent.substring(ent.end);
+            
+            htmlContent = `${prefix}<span class="hl hl-${ent.label}" title="${ent.label}">${entityText}</span>${suffix}`;
+        });
+
+        textEditor.innerHTML = htmlContent;
+        reviewContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    exportBtn.addEventListener('click', async () => {
+        if (!globalData) return;
+        
+        exportBtn.disabled = true;
+        try {
+            const response = await fetch('/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: globalData.text,
+                    entities: globalData.predicted_entities,
+                    filename: globalData.id // Send original filename
+                })
+            });
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            // The download name is also set by the server, but we set it here as fallback
+            a.download = globalData.id.replace(".pdf", "_masked.pdf");
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            alert("Export failed: " + err);
+        } finally {
+            exportBtn.disabled = false;
         }
     });
 </script>

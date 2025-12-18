@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PII Extractor (Flask)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Styling for the log window for a terminal-like appearance */
+        #log-window {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            height: 400px;
+            overflow-y: scroll; /* Allows scrolling when content exceeds height */
+            border-radius: 5px;
+            white-space: pre-wrap; /* Preserves line breaks from the streamed output */
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3>Personal Stuff Extractor</h3>
+            <p class="mb-0">Upload a PDF to extract, chunk, and predict personal data.</p>
+        </div>
+        <div class="card-body">
+            
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="fileInput" class="form-label">Select Source File (.pdf)</label>
+                    <input class="form-control" type="file" id="fileInput" name="file" accept=".pdf" required>
+                </div>
+                <button type="submit" class="btn btn-success" id="startBtn">Start Process</button>
+            </form>
+
+            <hr class="my-4">
+
+            <h5>Output Log:</h5>
+            <div id="log-window">Awaiting start...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript to handle form submission and stream the server response
+    const form = document.getElementById('uploadForm');
+    const logWindow = document.getElementById('log-window');
+    const startBtn = document.getElementById('startBtn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Disable button and update status
+        startBtn.disabled = true;
+        startBtn.innerText = "Running...";
+        logWindow.innerText = "Initializing...\n";
+        
+        const formData = new FormData(form);
+
+        try {
+            // Start the fetch request to the /run route
+            const response = await fetch('/run', {
+                method: 'POST',
+                body: formData
+            });
+
+            // Check for non-OK response codes (400, 500, etc.)
+            if (!response.ok) {
+                const errorText = await response.text();
+                logWindow.innerText += `\n\nSERVER ERROR: ${errorText}`;
+                return;
+            }
+
+            // Read the streaming response body
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                // Decode the chunk and append text to the log window
+                const text = decoder.decode(value);
+                logWindow.innerText += text;
+                
+                // Scroll to the bottom to show the latest output
+                logWindow.scrollTop = logWindow.scrollHeight;
+            }
+        } catch (error) {
+            logWindow.innerText += `\n\nCRITICAL CLIENT ERROR: ${error}`;
+        } finally {
+            // Re-enable button regardless of success/failure
+            startBtn.disabled = false;
+            startBtn.innerText = "Start Process";
+        }
+    });
+</script>
+
+</body>
+</html>
