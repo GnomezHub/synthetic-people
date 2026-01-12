@@ -61,9 +61,9 @@ Rules:
 
 # --- PDF EXTRACTION FUNCTIONS ---
 
-def fix_duplicated_text(text: str) -> str:
-    """Removes duplicated repeated characters caused by OCR noise."""
-    return re.sub(r"(.)\1+", r"\1", text)
+def clean_whitespace(text: str) -> str:
+    """Removes duplicated repeated whitespaces caused by OCR noise."""
+    return re.sub(r" +", " ", text)
 
 def preprocess_image(image: Image.Image) -> Image.Image:
     """Preprocesses images before OCR for better accuracy."""
@@ -80,7 +80,7 @@ def extract_text_with_pdfplumber(pdf_path: str) -> dict:
         for i, page in enumerate(pdf.pages, start=1):
             raw_text = page.extract_text(layout=True)
             if raw_text:
-                clean_text = fix_duplicated_text(raw_text)
+                clean_text = clean_whitespace(raw_text)
                 pages_text[f"page_{i}"] = clean_text
             else:
                 pages_text[f"page_{i}"] = ""
