@@ -1,0 +1,24 @@
+{
+  "id": "Willys.pdf",
+  "text": "Jag är en Willys! \n \n \n \n Mitt namn är Danny och jag är en noggrann, självgående och ambitiös kille.\n Efter flera års arbete med IT och programmering så bestämde jag mig för \n \n att helt byta riktning. Jag flyttade till Norrland där jag arbetade som \n campingvärd, vaktmästare, städare samt skötsel av naturreservat och \n \n lantbruk. Varje roll var en ny erfarenhet för mig och jag skötte det väldigt\n bra, vilket kan intygas av arbetsgivarna. Som campingvärd stod jag en hel \n del i receptionen som även var en kiosk med dagligvaror och allt vad det \n \n innebär (inventering, kundservice och kassa). Nu har jag precis flyttat \n tillbaka till Skåne (Malmö) och vill gärna arbeta med just dagligvaruhandel.\n \n När jag befinner mig på Willys känner jag mig hemma och när jag ser dem \n som redan jobbar där känner jag att “det där hade jag velat syssla med om \n \n dagarna”. Plocka ihop varor för e-handel, ordna och dona, stå till tjänst för\n kunder och vara trevlig, sitta i kassan och bjuda på leenden. Hoppas att vi\n ses! Obs jag uppfyller kraven för nystartsjobb =) \n \n \n Med Vänlig Hälsning \n \n /Danny Gomez \n 072 007 9265",
+  "predicted_entities": [
+    {
+      "label": "NAME",
+      "start": 39,
+      "end": 44,
+      "text": "Danny"
+    },
+    {
+      "label": "NAME",
+      "start": 1098,
+      "end": 1109,
+      "text": "Danny Gomez"
+    },
+    {
+      "label": "PHONE",
+      "start": 1112,
+      "end": 1124,
+      "text": "072 007 9265"
+    }
+  ]
+}

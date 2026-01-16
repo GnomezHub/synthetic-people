@@ -29,7 +29,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['TEMP_FOLDER'] = TEMP_FOLDER
 
-# --- LLM SYSTEM PROMPT ---
+# --- LLM SYSTEM PROMPT (Intact) ---
 SYSTEM_PROMPT = """
 Extract entities from the input text using ONLY the labels below.
 
@@ -62,14 +62,8 @@ Rules:
 # --- PDF EXTRACTION FUNCTIONS ---
 
 def clean_whitespace(text: str) -> str:
-    """Removes duplicated repeated whitespaces and trims excessive newlines."""
-    if not text:
-        return ""
-    # Ta bort multipla mellanslag
-    text = re.sub(r" +", " ", text)
-    # Begränsa multipla radbrytningar (mer än 2) till max 2 för att undvika stora tomrum
-    text = re.sub(r"\n{3,}", "\n\n", text)
-    return text.strip()
+    """Removes duplicated repeated whitespaces caused by OCR noise."""
+    return re.sub(r" +", " ", text)
 
 def preprocess_image(image: Image.Image) -> Image.Image:
     """Preprocesses images before OCR for better accuracy."""
@@ -86,7 +80,6 @@ def extract_text_with_pdfplumber(pdf_path: str) -> dict:
         for i, page in enumerate(pdf.pages, start=1):
             raw_text = page.extract_text(layout=True)
             if raw_text:
-                # Vi strippar varje sida direkt vid extraktion
                 clean_text = clean_whitespace(raw_text)
                 pages_text[f"page_{i}"] = clean_text
             else:
@@ -99,8 +92,7 @@ def extract_text_with_ocr(pdf_path: str) -> dict:
     images = convert_from_path(pdf_path, dpi=300)
     for i, image in enumerate(images, start=1):
         processed_image = preprocess_image(image)
-        # Vi lägger till .strip() för att få bort marginal-radbrytningar från OCR
-        text = pytesseract.image_to_string(processed_image, lang="swe", config=r"--oem 3 --psm 4").strip()
+        text = pytesseract.image_to_string(processed_image, lang="swe", config=r"--oem 3 --psm 4")
         pages_text[f"page_{i}"] = text
     return pages_text
 
@@ -201,9 +193,8 @@ def run_script():
         yield f"LOG: Processing {filename}...\n"
         page_results, method = extract_text_from_pdf_smart(pdf_path)
         
-        # SLÅ IHOP SIDOR: Filtrera bort tomma rader och trimma hela resultatet
-        # Vi använder en enkel radbrytning mellan sidor som faktiskt har innehåll
-        full_text = "\n".join([p.strip() for p in page_results.values() if p.strip()]).strip()
+        # Use a single newline to join pages to keep index math simple
+        full_text = "\n".join(page_results.values())
         
         yield f"LOG: Extraction method: {method}\n"
         
