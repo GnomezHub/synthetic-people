@@ -99,7 +99,7 @@ def extract_text_with_ocr(pdf_path: str) -> dict:
     images = convert_from_path(pdf_path, dpi=300)
     for i, image in enumerate(images, start=1):
         processed_image = preprocess_image(image)
-        # Vi lägger till .strip() för att få bort marginal-radbrytningar från OCR
+  
         text = pytesseract.image_to_string(processed_image, lang="swe", config=r"--oem 3 --psm 4").strip()
         pages_text[f"page_{i}"] = text
     return pages_text
@@ -201,8 +201,6 @@ def run_script():
         yield f"LOG: Processing {filename}...\n"
         page_results, method = extract_text_from_pdf_smart(pdf_path)
         
-        # SLÅ IHOP SIDOR: Filtrera bort tomma rader och trimma hela resultatet
-        # Vi använder en enkel radbrytning mellan sidor som faktiskt har innehåll
         full_text = "\n".join([p.strip() for p in page_results.values() if p.strip()]).strip()
         
         yield f"LOG: Extraction method: {method}\n"
