@@ -1,83 +1,140 @@
 
-Uppdrag:
+## Sammanfattning:
 
-Rootpi beställer ett verktyg där användaren väljer en pdf och får tillbaka en maskerad pdf utan personlig information.
-Dessa dokument ska kunna användas för till exempel forskning utan att personuppgifterna röjs
+Vi har utvecklat ett verktyg som låter användaren ladda upp en pdf i ett gränssnitt och får tillbaka en version av filen där känsliga personuppgifter maskerats. Identifieringen av personuppgifter är ett exempel på NER (Named Entity Recognition) med stora språkmodeller.
 
-Testa:
+## Användning:
+1. Klona github-repot:
+```
+git clone https://github.com/GnomezHub/synthetic-people.git
+```
 
-Först installera Tesseract(text från bilder) och poppler(bild från pdf):
+2. Installera de externa biblioteken Poppler (omvandlar pdf till bild) och Tesseract (omvandlar bild till text):
 
-macOS (via Homebrew):
-    brew install tesseract poppler
+**MacOS (via Homebrew):**
 
-Ubuntu/Linux:
-    sudo apt update
-    sudo apt install tesseract-ocr poppler-utils
+```
+brew install tesseract poppler
+```
+    
+**Ubuntu/Linux:**
 
-Windows: Ladda ner binärer för Tesseract och Poppler och lägg till dem i din PATH.
+```
+sudo apt update
+sudo apt install tesseract-ocr poppler-utils
+```
 
-sen behöver du installera python biblioteken med detta kommandot:
-    pip install flask openai pdfplumber pdf2image pytesseract pillow fpdf werkzeug
+**Windows:**
 
-och sista steget innan körning är att ställa in openai nyckel:
-   
-macOS / Linux:
-    export OPENAI_API_KEY='[api_nycklen_här]'
+Ladda ner binärer för Tesseract och Poppler och lägg till dem i din PATH.
 
-Windows (PowerShell):
-    $env:OPENAI_API_KEY='[api_nycklen_här]'
+3. Installera Python-bibliotek:
+```
+pip install flask openai pdfplumber pdf2image pytesseract pillow fpdf werkzeug
+```
 
-sen är de klart och du går till:
-    cd flask
+4. Ställ in API-nyckel:
+**MacOS/Linux:**
+```
+export OPENAI_API_KEY='[nyckel]'
+```
 
-och där kör du:
-    python app.py
+**Windows (PowerShell):**
+```
+$env:OPENAI_API_KEY='[nyckel]'
+```
 
-när terminalen säger "running on http..." så öppna http://localhost:5000 från webbläsaren
+5. Navigera till rätt mapp:
+```
+cd flask
+```
 
+6. Starta applikationen:
+```
+python app.py
+```
 
-Kravspecifikation:
+## Syfte
 
-Extrahering av information från en PDF fil från användaren
-Identifiering av personlig identifierbar information (AI)
-Maskering av dessa och generera en PDF fil till användaren
+Syftet med projektet är att undersöka hur genomförbart det är att ta fram ett verktyg som, med hjälp av en stor språkmodell, kan identifiera känsliga personuppgifter i dokument och maskera dem korrekt.
 
-Projektet är tänkt i python och vi använder LLM för identifieringen. RootPi erbjuder API nyckel till openai.
+## Repots innehåll
+### Data/
+Denna mapp innehåller den data vi tagit fram och använt för att utvärdera modeller under den första fasen. Gold-sv-30.json är en kortare version av gold-sv-200.json.
 
-Projektet startades under ledning av en lärare från Lexicon som föreslog att vi börjar med att använda lokal modell, troligtvis av forskningsskäl.
-Vi började med Ollama och den enda modellen vi kunde köra på vår dator, men desförinnan behövde vi skapa testdata för våra experiment.
-Github projektet fick sitt namn för att spegla den första delen av projektet, och då vid tog fram testdata av påhittade personer så kändes
-synthetic people som ett passande namn.
+### Script/
+Scripten i denna mapp är de som använts för modellutvärdering. 
 
-]Ingrid]....testdata, experiment ochmätningar....
+get_predictions.py är det script som promptar modellen, ger den input, hittar start- och slutindex för identifierade entiteter och bygger upp JSON-objekt.
+get_predictions_openai.py är samma, bara konfigurerat för OpenAI's API.
 
-Visdomsdelar
+eval.py är det script som jämför båda JSON-filerna (vår gold-data och modellens predictions) och räknar ut precision, recall och f1. Den utvärderar på två olika sätt, vilket är väl förklarat i kommentarerna.
 
-Kostnaden är en faktor som kan regleras med välskriven kod, och i LLM sammanhang handlar det om att hushålla med tokens och maxa all logic som går att lägga utanför. För att minska på storleken i svaret så hittade vi ett alternativt sätt till att be om en json list.
-Den lokala LLM var usel på att räkna rätt index på dom funna entiteterna så vi flyttade den logiken från modellen till kod. Kvar var det att veta vilken typ av entitet det är och vi valde att ange detta kodat på den första siffran i varje sträng i den listan.
-Man kan fortsätta att lägga fler uträkningar som går att göra utan LLM, som email och annat som följer ett mönster som man kanske kan upptäcka med regex. 
-Om det förmaskeras så att LLM inte ens behöver tänka på att de finns, så blir det inte bara billigare utan också mer träffsäkert. 
+### Flask/
+app.py och templates/index.html används för gränssnittet. 
 
-Lösningens komponenter
+## Arbetets gång
+### 1. Data
+Vi tog fram 200 meningar med syntetiska personuppgifter för att testa och utvärdera LLMs på uppgiften. Vi genererade meningar innehållande flera olika sorters personuppgifter:
 
-Vi använde flask att bygga gränsnittet i med html&bootstrap/ javascript. 
-inläsningen av PDF. Identifiera informationen och extrahera den en eller flera python bibliotek (fallback).
-När vi har informationen ska den delas upp i "chunks" för att inte skicka allting i en och samma fråga till modellen.
-Experimenten vi gjorde med ollama visade att modeller kan bli förvirrade av email och kom fram till att man skulle kunna undgå detta
-genom att i detta skedet använda regex för att förmaskera email. Dock hade vi inte haft tid att testa det på openapi så istället för att
-lägga ännu mer tid på det så ville vi testa utan för att se om det ens behövdes.
-Varje chunk går sedan till LLM med instruktioner vi systempromten och kommer tillbaka med upplistade entiteter. 
-Vilken typ av entitet den har hittat visar den med första siffran av varje entitet i listan. Sedan hittas index genom att leta igenom entiteten i texten.
-Dessa index markerar var i texten som perso infon ska maskeras. I ett gransknings steg visar man dessa förekomster med orden markerade i färgkod för att visa vilken typ av personinfo som hittats
-Här kan man utöka UI genom att man i granskningen kan välja och ändra eller ta bort markerade förekomster för maskering. Och man ska kunna bläddra mellan varje "chunk"
-så att användaren slipper granska hela pdf dokumentet på en och samma gång. Dessa saker fick av tidskäl bli föremål för uppgraderingar.
- I denna första version kan man bara granska allt den hittat och välja exportera pdf. Då får man pdfn så som man ser den i listan men maskerad med [förekomst], till exempel [telefonnummer].
-Man skulle också innan exportknappen kunna ha valet av maskering, som [förekomstnamn], med **** eller med svart box över orden. Här blev det [förekomstnamn].
+- Namn
+- Adress
+- Telefonnummer
+- Personnummer
+- Email
 
-Övriga förbättringar
+Datan är syntetisk, alltså påhittad, men är utformad för att efterlikna verkliga exempel. Vi använde generativ AI för att hjälpa oss generera exempel.
 
-I extraktionen istället för pdfplumber använda PyMuPDF (för att få ut koordinater/bbox).
-Analysen behöver inte bara läggas på LLM utan en hybrid: Presidio (Regex + Spacy) -> LLM (för kontext).
-För exporten använda PyMuPDF (ritar rutor på original-PDF).
-UIX mer interaktion i gransknings och export bitarna, som jag beskrev ovan i "lösningens komponenter".
+Av de 200 meningarna byggde vi JSON-objekt i detta format:
+```
+{
+    "id": "sv-001",
+    "language": "sv",
+    "text": "När handläggaren på Skatteverket ringde stod det att ansökan skickats av Elin Rask. Hennes nummer är 0722 33 44 55.",
+    "gold_entities": [
+      {
+        "id": "e1",
+        "label": "NAME",
+        "start": 73,
+        "end": 83,
+        "text": "Elin Rask"
+      },
+      {
+        "id": "e2",
+        "label": "PHONE",
+        "start": 101,
+        "end": 114,
+        "text": "0722 33 44 55"
+      }
+```
+
+Vi använde kod för att korrekt hitta start- och slutindex för entiteterna, då vi upptäckte att LLM inte lyckades med det.
+
+## 2. Modellutvärdering
+
+Vi började med att testa modeller lokalt via Ollama, sedan gick vi över till att använda OpenAI.
+
+Modellen  fick text-fältet (meningen) som input och fick instruktioner om att hitta entiteter i den, utifrån en fördefinierad lista med etiketter (samma som ovan). Den ombads ge sitt svar i en sträng med etikett och entitet, till exempel:
+`1Elin Rask`
+där den första siffran motsvarar en etikett. Vi kom fram till detta format, istället för att be modellen svara med ett helt JSON-objekt, då vi försökte minimera antalet tokens som skulle skickas över API.
+
+Efter modellens svar använde vi kod för att hitta start- och slutindex för de entiteter som modellen identifierat, och bygga upp JSON-objektet utifrån det. Resultatet blir en JSON-fil som har exakt samma struktur som vår gold-fil. 
+
+Med de två filerna (gold och predictions) kunde vi utvärdera hur väl modellen presterat genom att mäta dess precision och recall och väga samman det till ett f1-score.
+Vi experimenterade med olika modeler och att ändra systemprompten för att se hur resultatet påverkades. Mätningarna dokumenterades i ett kalkylark, där den raden som är i fetstil markerar det bästa resultatet:
+
+https://docs.google.com/spreadsheets/d/1SRryb4xJOOVl2xTvwc15Cf5zywOSJuQHn5MEB7T5TjA/edit?gid=1495298767#gid=1495298767
+
+## 3. Gränssnitt
+
+Gränssnittet är byggt med Flask och med html, javascript och bootstrap.
+
+Användaren laddar upp en pdf-fil. Python-biblioteken används för att extrahera text från pdf:en. Texten delas upp i "chunks" för att underlätta för modellen, som får en chunk i varje prompt. Modellen svarar med entiteter den hittat, och deras etiketter. Gränssnittet visar vilka entiteter som hittats och vilka etiketter de tilldelats, genom färgkodning. Man kan sedan ladda ner filen där entiteterna är maskerade, t.ex: "Jag heter [namn] och bor på [adress]".
+
+## Förslag på utveckling
+En bra utveckling för framtiden är att erbjuda användaren att godkänna eller neka föreslagna maskeringar i ett gransknings-steg, innan man laddar ner filen. Ett annat förslag är att låta användaren granska en "chunk" i taget så att den inte behöver granska hela pdf:en på en gång. Det vore också bra om man kunde välja hur man vill att maskeringen ska se ut, t.ex. om man vill ha ***** eller ett svart streck över orden.
+
+## Insikter
+Det svåraste med denna uppgiften är att få rätt predictions från modellen. Även en stor modell som GPT 4.1 gör många fel. Man kan förbättra resultatet genom att finslipa systemprompten, men man måste också inse modellens begränsningar. Den största risken är att modellen helt missar en entitet. Att den sätter fel etikett eller att den felklassificerar något okänsligt som känsligt är ett mindre problem. Därför är recall det viktigaste mätvärdet, viktigare än precision. Att användaren själv får granska och godkänna/neka är ett bra sätt att komma över modellens imperfektioner.
+
+Vi märkte att modellen ofta blir förvirrad kring mejladresser och behöver tydliga instruktioner kring det. Vi experimenterade med tanken att man skulle undvika helt att modellen får se mejladresser och istället maskera dem på förhand med hjälp av RegEX (eftersom mejladresser följer tydliga mönster). Vi utvecklade aldrig en sån lösning, men det är relevant om man ska använda mindre modeller (t.ex. Gemma). Denna metod skulle också spara på tokens.
