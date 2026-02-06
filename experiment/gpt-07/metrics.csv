@@ -1,0 +1,3 @@
+gold_file,run_id,eval_type,precision,recall,f1,tp,fp,fn,NAME_f1,PHONE_f1,ADDRESS_f1,NATIONAL_ID_f1,EMAIL_f1
+gold-sv-200.json,gpt-07,span-only,0.96,0.96,0.96,679,26,30
+gold-sv-200.json,gpt-07,standard,0.96,0.95,0.95,674,31,35,0.94,0.98,0.96,0.9,0.99
