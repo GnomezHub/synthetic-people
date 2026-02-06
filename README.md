@@ -70,6 +70,9 @@ get_predictions_openai.py är samma, bara konfigurerat för OpenAI's API.
 
 eval.py är det script som jämför båda JSON-filerna (vår gold-data och modellens predictions) och räknar ut precision, recall och f1. Den utvärderar på två olika sätt, vilket är väl förklarat i kommentarerna.
 
+### Experiment/
+Denna mapp innehåller resultatet av modellutvärderingen. Varje mapp representerar ett experiment och innehåller två filer - JSON-filen som skapats efter modellens output (predictions) och siffrorna från mätningen. Siffrorna syns också i kalkylarket (som är länkat längre ner).
+
 ### Flask/
 app.py och templates/index.html används för gränssnittet. 
 
@@ -138,3 +141,4 @@ En bra utveckling för framtiden är att erbjuda användaren att godkänna eller
 Det svåraste med denna uppgiften är att få rätt predictions från modellen. Även en stor modell som GPT 4.1 gör många fel. Man kan förbättra resultatet genom att finslipa systemprompten, men man måste också inse modellens begränsningar. Den största risken är att modellen helt missar en entitet. Att den sätter fel etikett eller att den felklassificerar något okänsligt som känsligt är ett mindre problem. Därför är recall det viktigaste mätvärdet, viktigare än precision. Att användaren själv får granska och godkänna/neka är ett bra sätt att komma över modellens imperfektioner.
 
 Vi märkte att modellen ofta blir förvirrad kring mejladresser och behöver tydliga instruktioner kring det. Vi experimenterade med tanken att man skulle undvika helt att modellen får se mejladresser och istället maskera dem på förhand med hjälp av RegEX (eftersom mejladresser följer tydliga mönster). Vi utvecklade aldrig en sån lösning, men det är relevant om man ska använda mindre modeller (t.ex. Gemma). Denna metod skulle också spara på tokens.
+
